@@ -7,6 +7,23 @@ export type KpiDef = {
   label: string;
   pick: (m: Metrics) => number | null;
   sub?: (m: Metrics) => { texto: string; positivo: boolean | null } | null;
+  /** Força o modo de atribuição das métricas deste KPI (ex.: ponto de equilíbrio precisa das fixas). */
+  atribuivel?: boolean;
+};
+
+export const KPI_PONTO_EQUILIBRIO: KpiDef = {
+  label: "Ponto de Equilíbrio",
+  pick: (m) => m.pontoEquilibrio,
+  atribuivel: true,
+  sub: (m) => {
+    if (m.pontoEquilibrio === null)
+      return { texto: "Sem margem de contribuição positiva", positivo: null };
+    const cobertura = m.pontoEquilibrio > 0 ? (m.faturamento / m.pontoEquilibrio) * 100 : null;
+    return {
+      texto: `Faturamento cobre ${pct(cobertura)} do necessário`,
+      positivo: (cobertura ?? 0) >= 100,
+    };
+  },
 };
 
 export const KPI_PADRAO: KpiDef[] = [
