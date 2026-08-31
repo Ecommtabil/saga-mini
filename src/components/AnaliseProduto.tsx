@@ -216,7 +216,8 @@ export function AnaliseProduto({
           </thead>
           <tbody>
             {filtradas.map((l) => {
-              const largura = Math.min(Math.abs(l.margemPct ?? 0), 100) * 0.7;
+              const largura = Math.min(Math.abs(l.margemPct ?? 0), 100);
+
               return (
                 <tr key={l.key}>
                   <td>{l.sku}</td>
