@@ -113,7 +113,7 @@ function ClientePage() {
         <span className="diag-badge">Preparado por Ecommtabil</span>
       </header>
 
-      <div className="diag-container">
+      <div className={aba === "gerencial" ? "diag-container wide" : "diag-container"}>
         <nav className="tabs no-print">
           {abas.map(([k, label]) => (
             <button key={k} className={aba === k ? "active" : ""} onClick={() => setAba(k)}>
