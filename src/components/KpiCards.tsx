@@ -7,6 +7,23 @@ export type KpiDef = {
   label: string;
   pick: (m: Metrics) => number | null;
   sub?: (m: Metrics) => { texto: string; positivo: boolean | null } | null;
+  /** Força o modo de atribuição das métricas deste KPI (ex.: ponto de equilíbrio precisa das fixas). */
+  atribuivel?: boolean;
+};
+
+export const KPI_PONTO_EQUILIBRIO: KpiDef = {
+  label: "Ponto de Equilíbrio",
+  pick: (m) => m.pontoEquilibrio,
+  atribuivel: true,
+  sub: (m) => {
+    if (m.pontoEquilibrio === null)
+      return { texto: "Sem margem de contribuição positiva", positivo: null };
+    const cobertura = m.pontoEquilibrio > 0 ? (m.faturamento / m.pontoEquilibrio) * 100 : null;
+    return {
+      texto: `Faturamento cobre ${pct(cobertura)} do necessário`,
+      positivo: (cobertura ?? 0) >= 100,
+    };
+  },
 };
 
 export const KPI_PADRAO: KpiDef[] = [
@@ -36,6 +53,7 @@ export const KPI_PADRAO: KpiDef[] = [
       positivo: null,
     }),
   },
+  KPI_PONTO_EQUILIBRIO,
 ];
 
 export function KpiCards({
@@ -51,18 +69,24 @@ export function KpiCards({
   atribuivel?: boolean;
   kpis?: KpiDef[];
 }) {
-  const m = model.metrics(periodo, filter, atribuivel);
-  const serie = model.meses.map((mes) => ({
-    mes,
-    ...model.metrics(mes, filter, atribuivel),
-  }));
+  const metricasDe = (attr: boolean) => ({
+    atual: model.metrics(periodo, filter, attr),
+    serie: model.meses.map((mes) => ({ mes, ...model.metrics(mes, filter, attr) })),
+  });
+  const base = metricasDe(atribuivel);
+  const alternativo = metricasDe(!atribuivel);
 
   return (
-    <div className={`kpi-grid${kpis.length === 4 ? " cols-4" : ""}`}>
+    <div
+      className={`kpi-grid${kpis.length === 4 ? " cols-4" : kpis.length === 6 ? " cols-6" : ""}`}
+    >
       {kpis.map((k) => {
+        const fonte =
+          k.atribuivel === undefined || k.atribuivel === atribuivel ? base : alternativo;
+        const m = fonte.atual;
         const sub = k.sub?.(m) ?? null;
         const valor = k.pick(m);
-        const dados = serie.map((s) => ({
+        const dados = fonte.serie.map((s) => ({
           mes: mesLabel(s.mes),
           v: k.pick(s) ?? 0,
         }));
