@@ -201,7 +201,7 @@ export function Simuladores({ model }: { model: DreModel }) {
         </button>
       </section>
 
-      <section className="panel">
+      <section className="panel bleed">
         <h2>DRE Base × Simulado</h2>
         <div className="wide-table-wrap">
           <table className="wide-dre">

@@ -150,7 +150,7 @@ function ClientePage() {
             {aba === "dre" && (
               <>
                 <KpiCards model={model} periodo={TOTAL} />
-                <section className="panel">
+            <section className="panel bleed">
                   <h2>DRE Gerencial {multiEmpresa ? "— consolidado por empresa" : ""}</h2>
                   <DreWideTable
                     model={model}

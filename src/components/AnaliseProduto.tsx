@@ -116,7 +116,7 @@ export function AnaliseProduto({
   );
 
   return (
-    <section className="panel">
+    <section className="panel bleed">
       <h2>
         Análise por Produto —{" "}
         {periodo === TOTAL ? "Período Total" : `mês selecionado`}
