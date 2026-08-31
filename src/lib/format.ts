@@ -1,3 +1,10 @@
+/** Evita exibir "-0,00" quando o valor arredondado é zero. */
+const zeroSafe = (v: number, digits: number) => {
+  const f = 10 ** digits;
+  const r = Math.round(v * f) / f;
+  return r === 0 ? 0 : r;
+};
+
 export const brl = (v: number | null | undefined) =>
   v === null || v === undefined || !Number.isFinite(v)
     ? "N/D"
@@ -6,7 +13,7 @@ export const brl = (v: number | null | undefined) =>
         currency: "BRL",
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
-      }).format(v);
+      }).format(zeroSafe(v, 2));
 
 export const pct = (v: number | null | undefined, digits = 1) =>
   v === null || v === undefined || !Number.isFinite(v)
@@ -14,7 +21,7 @@ export const pct = (v: number | null | undefined, digits = 1) =>
     : new Intl.NumberFormat("pt-BR", {
         minimumFractionDigits: digits,
         maximumFractionDigits: digits,
-      }).format(v) + "%";
+      }).format(zeroSafe(v, digits)) + "%";
 
 export const num = (v: number | null | undefined, digits = 0) =>
   v === null || v === undefined || !Number.isFinite(v)
@@ -22,7 +29,7 @@ export const num = (v: number | null | undefined, digits = 0) =>
     : new Intl.NumberFormat("pt-BR", {
         minimumFractionDigits: digits,
         maximumFractionDigits: digits,
-      }).format(v);
+      }).format(zeroSafe(v, digits));
 
 const MESES = [
   "Jan",
