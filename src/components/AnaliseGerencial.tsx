@@ -55,7 +55,7 @@ export function AnaliseGerencial({ model }: { model: DreModel }) {
 
   return (
     <>
-      <section className="panel">
+      <section className="panel bleed">
         <h2>Gráfico Tesoura — variação % mês a mês (AH)</h2>
         <div className="filters">
           <div className="field">
@@ -110,7 +110,7 @@ export function AnaliseGerencial({ model }: { model: DreModel }) {
         </div>
       </section>
 
-      <section className="panel">
+      <section className="panel bleed">
         <h2>Participação por Marketplace no Faturamento (100%)</h2>
         <div className="chart-box">
           <ResponsiveContainer width="100%" height="100%">
@@ -133,7 +133,7 @@ export function AnaliseGerencial({ model }: { model: DreModel }) {
         </div>
       </section>
 
-      <section className="panel">
+      <section className="panel bleed">
         <h2>Margens por mês</h2>
         <div className="wide-table-wrap">
           <table className="wide-dre">
@@ -172,7 +172,7 @@ export function AnaliseGerencial({ model }: { model: DreModel }) {
         </div>
       </section>
 
-      <section className="panel">
+      <section className="panel bleed">
         <h2>Análise Vertical e Horizontal completas</h2>
         <div className="wide-table-wrap">
           <table className="wide-dre">

@@ -81,7 +81,7 @@ export function DreDetalhado({
         <KpiCards model={model} periodo={periodo} />
       )}
 
-      <section className="panel">
+      <section className="panel bleed">
         <h2>
           {sel
             ? `DRE por Marketplace — ${model.data.empresas.find((e) => e.id === sel)?.nome}`

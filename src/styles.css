@@ -237,6 +237,12 @@ section.panel{
 }
 section.panel h2{margin:0 0 18px; font-size:17px; color:var(--navy); display:flex; align-items:center; gap:10px;}
 section.panel h2::before{content:""; width:6px; height:20px; background:var(--accent); border-radius:3px; display:inline-block;}
+section.panel.bleed{padding-left:0; padding-right:0;}
+section.panel.bleed > h2,
+section.panel.bleed > .toolbar,
+section.panel.bleed > .filters,
+section.panel.bleed > .table-note{padding-left:26px; padding-right:26px;}
+section.panel.bleed > .wide-table-wrap{border-left:none; border-right:none; border-radius:0;}
 .chart-box{position:relative; height:420px;}
 
 .wide-table-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:10px;}
