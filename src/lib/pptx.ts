@@ -89,29 +89,36 @@ export async function exportarApresentacao(
       `${pct(m.margemContribuicaoPct)} do faturamento`,
     ],
     ["Lucro Líquido", brl(m.lucroLiquido), `Margem líquida ${pct(m.margemLiquidaPct)}`],
+    [
+      "Ponto de Equilíbrio",
+      brl(m.pontoEquilibrio),
+      m.pontoEquilibrio && m.pontoEquilibrio > 0
+        ? `Faturamento cobre ${pct((m.faturamento / m.pontoEquilibrio) * 100)}`
+        : "Sem margem de contribuição positiva",
+    ],
   ];
   stats.forEach(([label, valor, nota], i) => {
-    const x = 0.6 + i * 2.98;
+    const x = 0.6 + i * 2.25;
     s2.addShape(pptx.ShapeType.roundRect, {
       x,
       y: 1.6,
-      w: 2.75,
+      w: 2.05,
       h: 1.8,
       fill: { color: "F2F5FA" },
       line: { color: "DDE3EE" },
       rectRadius: 0.08,
     });
-    s2.addText(label, { x: x + 0.2, y: 1.75, w: 2.4, h: 0.3, fontSize: 12, color: CINZA });
+    s2.addText(label, { x: x + 0.15, y: 1.75, w: 1.8, h: 0.3, fontSize: 11, color: CINZA });
     s2.addText(valor, {
-      x: x + 0.2,
+      x: x + 0.15,
       y: 2.1,
-      w: 2.4,
+      w: 1.8,
       h: 0.6,
-      fontSize: 20,
+      fontSize: 17,
       bold: true,
       color: AZUL,
     });
-    s2.addText(nota, { x: x + 0.2, y: 2.8, w: 2.4, h: 0.4, fontSize: 10, color: CINZA });
+    s2.addText(nota, { x: x + 0.15, y: 2.75, w: 1.8, h: 0.5, fontSize: 9.5, color: CINZA });
   });
   s2.addText(
     `Ponto de equilíbrio do período: ${brl(m.pontoEquilibrio)} de faturamento — abaixo disso a operação opera no prejuízo.`,
