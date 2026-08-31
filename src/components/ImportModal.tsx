@@ -108,8 +108,9 @@ export function ImportModal({
                 <div className="field" key={c.key}>
                   <label>
                     {c.label}
-                    {c.obrigatorio ? " *" : ""}
+                    {"obrigatorio" in c && c.obrigatorio ? " *" : ""}
                   </label>
+
                   <select
                     value={map[c.key] ?? ""}
                     onChange={(e) =>
