@@ -53,6 +53,7 @@ export const KPI_PADRAO: KpiDef[] = [
       positivo: null,
     }),
   },
+  KPI_PONTO_EQUILIBRIO,
 ];
 
 export function KpiCards({
