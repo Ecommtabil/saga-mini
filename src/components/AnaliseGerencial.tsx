@@ -90,21 +90,26 @@ export function AnaliseGerencial({ model }: { model: DreModel }) {
               <Area
                 dataKey="A"
                 name={labelDe(a)}
-                stroke="#2e5eaa"
+                stroke="none"
                 fill="#2e5eaa"
                 fillOpacity={0.14}
+                legendType="none"
+                tooltipType="none"
                 connectNulls
               />
               <Area
                 dataKey="B"
                 name={labelDe(b)}
-                stroke="#f2c14e"
-                fill="#f2c14e"
+                stroke="none"
+                fill="#b8720a"
                 fillOpacity={0.14}
+                legendType="none"
+                tooltipType="none"
                 connectNulls
               />
               <Line dataKey="A" name={labelDe(a)} stroke="#2e5eaa" strokeWidth={2.5} dot />
               <Line dataKey="B" name={labelDe(b)} stroke="#b8720a" strokeWidth={2.5} dot />
+
             </ComposedChart>
           </ResponsiveContainer>
         </div>
