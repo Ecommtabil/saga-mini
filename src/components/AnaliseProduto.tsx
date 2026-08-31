@@ -8,6 +8,7 @@ type Linha = {
   produto: string;
   fornecedor: string;
   marketplace: string;
+  empresaId: string;
   empresa: string;
   unidades: number;
   receita: number;
@@ -25,6 +26,7 @@ export function AnaliseProduto({
   periodo: string;
 }) {
   const [busca, setBusca] = useState("");
+  const [empresaId, setEmpresaId] = useState("");
   const [skuSel, setSkuSel] = useState("");
   const [fornecedor, setFornecedor] = useState("");
   const [marketplace, setMarketplace] = useState("");
@@ -56,6 +58,7 @@ export function AnaliseProduto({
           produto: v.nome_produto,
           fornecedor: v.fornecedor ?? "—",
           marketplace: v.marketplace,
+          empresaId: v.empresa_id,
           empresa: empresaNome.get(v.empresa_id) ?? "—",
           unidades: v.unidades,
           receita: v.receita,
@@ -94,6 +97,7 @@ export function AnaliseProduto({
       if (skuSel && l.sku !== skuSel) return false;
       if (fornecedor && l.fornecedor !== fornecedor) return false;
       if (marketplace && l.marketplace !== marketplace) return false;
+      if (empresaId && l.empresaId !== empresaId) return false;
       if (situacao === "nd" && l.custo !== null) return false;
       if (situacao === "pos" && !(l.custo !== null && l.margem >= 0)) return false;
       if (situacao === "neg" && !(l.custo !== null && l.margem < 0)) return false;
@@ -121,6 +125,25 @@ export function AnaliseProduto({
         Análise por Produto —{" "}
         {periodo === TOTAL ? "Período Total" : `mês selecionado`}
       </h2>
+      {model.data.empresas.length > 1 && (
+        <div className="toolbar">
+          <button
+            className={empresaId === "" ? "active" : ""}
+            onClick={() => setEmpresaId("")}
+          >
+            🏢 Consolidado
+          </button>
+          {model.data.empresas.map((e) => (
+            <button
+              key={e.id}
+              className={empresaId === e.id ? "active" : ""}
+              onClick={() => setEmpresaId(e.id)}
+            >
+              {e.nome}
+            </button>
+          ))}
+        </div>
+      )}
       <div className="filters">
         <div className="field">
           <label>Busca (SKU ou nome)</label>

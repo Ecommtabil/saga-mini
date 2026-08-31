@@ -222,6 +222,118 @@ export async function exportarApresentacao(
   bloco(0.6, "Maiores margens", melhores);
   bloco(5.2, "Atenção imediata", piores);
 
+  // ---------- Participação por marketplace ----------
+  const taxasMk = new Map<string, { fat: number; taxas: number }>();
+  for (const v of model.vendasDoPeriodo(periodo)) {
+    const t =
+      v.tarifa_venda +
+      v.tarifa_envio -
+      v.receita_envio +
+      v.cupom +
+      v.comissao_afiliado +
+      v.frete_entrega_direta;
+    const a = taxasMk.get(v.marketplace) ?? { fat: 0, taxas: 0 };
+    a.fat += v.receita;
+    a.taxas += t;
+    taxasMk.set(v.marketplace, a);
+  }
+  const partes = Array.from(taxasMk.entries())
+    .map(([nome, a]) => ({ nome, ...a }))
+    .sort((x, y) => y.fat - x.fat);
+  const totalFat = partes.reduce((a, b) => a + b.fat, 0);
+  const totalTaxas = partes.reduce((a, b) => a + b.taxas, 0);
+
+  const sPart = pptx.addSlide();
+  titulo(sPart, "Participação no faturamento", "Mix de canais");
+  if (partes.length) {
+    sPart.addChart(
+      pptx.ChartType.pie,
+      [
+        {
+          name: "Faturamento",
+          labels: partes.map((p) => p.nome),
+          values: partes.map((p) => p.fat),
+        },
+      ],
+      {
+        x: 0.6,
+        y: 1.35,
+        w: 4.2,
+        h: 3.4,
+        showPercent: true,
+        showLegend: true,
+        legendPos: "b",
+        dataLabelColor: BRANCO,
+      },
+    );
+  }
+  sPart.addTable(
+    [
+      ["Marketplace", "Faturamento", "Part. %"].map((t) => ({
+        text: t,
+        options: { bold: true, color: BRANCO, fill: { color: AZUL } },
+      })),
+      ...partes.map((p) => [
+        { text: p.nome },
+        { text: brl(p.fat), options: { align: "right" as const } },
+        {
+          text: pct(totalFat ? (p.fat / totalFat) * 100 : null),
+          options: { align: "right" as const },
+        },
+      ]),
+    ],
+    { x: 5.2, y: 1.35, w: 4.2, fontSize: 10, border: { type: "solid", color: "E3E8F0", pt: 0.5 } },
+  );
+
+  // ---------- Participação de taxas por marketplace ----------
+  const taxasOrd = [...partes].sort((a, b) => b.taxas - a.taxas);
+  const sTaxas = pptx.addSlide();
+  titulo(sTaxas, "Participação de taxas por marketplace", "Custo dos canais");
+  if (taxasOrd.length) {
+    sTaxas.addChart(
+      pptx.ChartType.bar,
+      [
+        {
+          name: "Taxas",
+          labels: taxasOrd.map((p) => p.nome),
+          values: taxasOrd.map((p) => p.taxas),
+        },
+      ],
+      {
+        x: 0.6,
+        y: 1.35,
+        w: 4.2,
+        h: 3.4,
+        barDir: "bar",
+        chartColors: [AZUL_CLARO],
+        showLegend: false,
+        catAxisLabelFontSize: 9,
+        valAxisLabelFontSize: 9,
+      },
+    );
+  }
+  sTaxas.addTable(
+    [
+      ["Marketplace", "Taxas", "% das taxas", "% do fat. do canal"].map((t) => ({
+        text: t,
+        options: { bold: true, color: BRANCO, fill: { color: AZUL } },
+      })),
+      ...taxasOrd.map((p) => [
+        { text: p.nome },
+        { text: brl(p.taxas), options: { align: "right" as const } },
+        {
+          text: pct(totalTaxas ? (p.taxas / totalTaxas) * 100 : null),
+          options: { align: "right" as const },
+        },
+        {
+          text: pct(p.fat ? (p.taxas / p.fat) * 100 : null),
+          options: { align: "right" as const },
+        },
+      ]),
+    ],
+    { x: 5.2, y: 1.35, w: 4.2, fontSize: 10, border: { type: "solid", color: "E3E8F0", pt: 0.5 } },
+  );
+
   // ---------- Plano de ação ----------
   const s6 = pptx.addSlide();
   s6.background = { color: AZUL };
