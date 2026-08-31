@@ -237,17 +237,21 @@ export function AnaliseProduto({
                   <td className="num">{brl(l.despVar)}</td>
                   <td className="num">{brl(l.margem)}</td>
                   <td className="num">
-                    <span className="margin-bar-wrap">
-                      <span
-                        className="margin-bar"
-                        style={{
-                          width: `${largura}px`,
-                          background: (l.margemPct ?? 0) >= 0 ? "var(--green)" : "var(--red)",
-                        }}
-                      />
+                    <span className="margin-cell">
+                      <span className="margin-bar-wrap">
+                        <span
+                          className="margin-bar"
+                          style={{
+                            width: `${largura}%`,
+                            background:
+                              (l.margemPct ?? 0) >= 0 ? "var(--green)" : "var(--red)",
+                          }}
+                        />
+                      </span>
+                      <span className="margin-val">{pct(l.margemPct)}</span>
                     </span>
-                    {pct(l.margemPct)}
                   </td>
+
                   <td>
                     {l.custo === null ? (
                       <span className="tag nd">Custo não cadastrado</span>
