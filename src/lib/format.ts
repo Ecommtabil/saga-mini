@@ -60,3 +60,16 @@ export const mesLongo = (mes: string) => {
   if (!y || idx < 0 || idx > 11) return mes;
   return `${MESES[idx]}/${y}`;
 };
+
+const MESES_LONGOS = [
+  "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+  "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro",
+];
+
+/** "2026-09" -> "Setembro 2026" */
+export const mesCompetencia = (mes: string) => {
+  const [y, m] = mes.split("-");
+  const idx = Number(m) - 1;
+  if (!y || idx < 0 || idx > 11) return mes;
+  return `${MESES_LONGOS[idx]} ${y}`;
+};

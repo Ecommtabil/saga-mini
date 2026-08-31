@@ -152,3 +152,41 @@ export function baixarModelo() {
   XLSX.utils.book_append_sheet(wb, ws, "Vendas");
   XLSX.writeFile(wb, "modelo-vendas-dre.xlsx");
 }
+
+/* -------------------- Planilha de despesas fixas -------------------- */
+
+export type DespesaImportada = { nome: string; valor: number };
+
+const ALIAS_DESPESA = ["despesa", "descricao", "descrição", "nome", "item", "conta"];
+const ALIAS_VALOR = ["valor", "vlr", "total", "montante"];
+
+/** Lê uma planilha com colunas DESPESA e VALOR. */
+export async function lerDespesasFixas(file: File): Promise<DespesaImportada[]> {
+  const { colunas, linhas } = await lerArquivo(file);
+  const acha = (aliases: string[]) =>
+    colunas.find((c) => aliases.includes(normal(c))) ??
+    colunas.find((c) => aliases.some((a) => normal(c).includes(a)));
+  const cNome = acha(ALIAS_DESPESA);
+  const cValor = acha(ALIAS_VALOR);
+  if (!cNome || !cValor)
+    throw new Error("A planilha precisa ter as colunas DESPESA e VALOR.");
+  return linhas
+    .map((l) => ({
+      nome: String(l[cNome] ?? "").trim(),
+      valor: Math.abs(toNumber(l[cValor])),
+    }))
+    .filter((d) => d.nome);
+}
+
+/** Baixa um modelo de planilha de despesas fixas. */
+export function baixarModeloDespesas() {
+  const ws = XLSX.utils.aoa_to_sheet([
+    ["DESPESA", "VALOR"],
+    ["Aluguel", 3500],
+    ["Folha de pagamento", 12000],
+    ["Software / ERP", 890],
+  ]);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Despesas Fixas");
+  XLSX.writeFile(wb, "modelo-despesas-fixas.xlsx");
+}
