@@ -13,6 +13,7 @@ import { AnaliseProduto } from "@/components/AnaliseProduto";
 import { Simuladores } from "@/components/Simuladores";
 import { ImportModal } from "@/components/ImportModal";
 import { ParametrosModal } from "@/components/ParametrosModal";
+import { ApresentacaoModal } from "@/components/ApresentacaoModal";
 
 export const Route = createFileRoute("/clientes/$id")({
   head: () => ({
@@ -44,6 +45,7 @@ function ClientePage() {
   const [periodo, setPeriodo] = useState<string>(TOTAL);
   const [importar, setImportar] = useState(false);
   const [parametros, setParametros] = useState(false);
+  const [apresentar, setApresentar] = useState(false);
 
   useEffect(() => {
     if (!loading && !session) void navigate({ to: "/auth" });
@@ -99,8 +101,11 @@ function ClientePage() {
           <button className="btn primary" onClick={() => setImportar(true)}>
             Importar planilha
           </button>
-          <Link to="/clientes/$id/apresentacao" params={{ id }} className="btn">
+          <button className="btn" onClick={() => setApresentar(true)}>
             Apresentação
+          </button>
+          <Link to="/clientes/$id/apresentacao" params={{ id }} className="btn ghost">
+            Ver slides
           </Link>
         </div>
         <h1>{model.data.cliente.nome}</h1>
