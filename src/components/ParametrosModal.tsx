@@ -166,6 +166,25 @@ export function ParametrosModal({
             </button>
           </div>
         ))}
+        <div className="modal-actions" style={{ justifyContent: "flex-start", marginTop: 8 }}>
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".xlsx,.xls,.csv"
+            style={{ display: "none" }}
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) void importarDespesas(f);
+              e.target.value = "";
+            }}
+          />
+          <button onClick={() => fileRef.current?.click()}>
+            Importar planilha de despesa fixa
+          </button>
+          <button className="ghost" onClick={() => baixarModeloDespesas()}>
+            Baixar modelo
+          </button>
+        </div>
         <button
           className="add-despfix-btn"
           onClick={() => setItens((arr) => [...arr, { nome: "", valor: "" }])}
