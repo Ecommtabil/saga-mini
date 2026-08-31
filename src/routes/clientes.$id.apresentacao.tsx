@@ -87,6 +87,25 @@ function Apresentacao() {
     };
   })();
 
+  const taxasPorMk = (() => {
+    const map = new Map<string, { fat: number; taxas: number }>();
+    for (const v of model.vendasDoPeriodo(periodo)) {
+      const t =
+        v.tarifa_venda + v.tarifa_envio - v.receita_envio + v.cupom + v.comissao_afiliado + v.frete_entrega_direta;
+      const a = map.get(v.marketplace) ?? { fat: 0, taxas: 0 };
+      a.fat += v.receita;
+      a.taxas += t;
+      map.set(v.marketplace, a);
+    }
+    const arr = Array.from(map.entries()).map(([nome, a]) => ({ nome, ...a }));
+    return {
+      porFat: [...arr].sort((a, b) => b.fat - a.fat),
+      porTaxa: [...arr].sort((a, b) => b.taxas - a.taxas),
+      totalFat: arr.reduce((a, b) => a + b.fat, 0),
+      totalTaxas: arr.reduce((a, b) => a + b.taxas, 0),
+    };
+  })();
+
   const delta = (key: "faturamento" | "margemContribuicao" | "lucroLiquido") =>
     anterior ? ah(m[key] as number | null, anterior[key] as number | null) : null;
 
@@ -240,6 +259,58 @@ function Apresentacao() {
             </table>
           </div>
         </div>
+      </section>
+
+      <section className="slide">
+        <span className="slide-kicker">Mix de canais</span>
+        <h2>Participação por marketplace no faturamento</h2>
+        <table className="slide-table">
+          <thead>
+            <tr>
+              <th>Marketplace</th>
+              <th className="num">Faturamento</th>
+              <th className="num">Participação</th>
+            </tr>
+          </thead>
+          <tbody>
+            {taxasPorMk.porFat.map((r) => (
+              <tr key={r.nome}>
+                <td>{r.nome}</td>
+                <td className="num">{brl(r.fat)}</td>
+                <td className="num">
+                  {pct(taxasPorMk.totalFat ? (r.fat / taxasPorMk.totalFat) * 100 : null)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
+      <section className="slide">
+        <span className="slide-kicker">Custo dos canais</span>
+        <h2>Participação de taxas por marketplace</h2>
+        <table className="slide-table">
+          <thead>
+            <tr>
+              <th>Marketplace</th>
+              <th className="num">Taxas</th>
+              <th className="num">% das taxas</th>
+              <th className="num">% do faturamento do canal</th>
+            </tr>
+          </thead>
+          <tbody>
+            {taxasPorMk.porTaxa.map((r) => (
+              <tr key={r.nome}>
+                <td>{r.nome}</td>
+                <td className="num">{brl(r.taxas)}</td>
+                <td className="num">
+                  {pct(taxasPorMk.totalTaxas ? (r.taxas / taxasPorMk.totalTaxas) * 100 : null)}
+                </td>
+                <td className="num">{pct(r.fat ? (r.taxas / r.fat) * 100 : null)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </section>
 
       <section className="slide slide-capa">
