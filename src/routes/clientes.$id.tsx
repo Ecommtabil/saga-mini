@@ -187,6 +187,9 @@ function ClientePage() {
           }}
         />
       )}
+      {apresentar && (
+        <ApresentacaoModal model={model} onClose={() => setApresentar(false)} />
+      )}
       {parametros && (
         <ParametrosModal
           model={model}
