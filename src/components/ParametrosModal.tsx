@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { salvarAliquota, salvarDespesasFixas } from "@/lib/data";
 import { mesLabel } from "@/lib/format";
+import { baixarModeloDespesas, lerDespesasFixas } from "@/lib/importPlanilha";
 import type { DreModel } from "@/lib/dre";
 
 export function ParametrosModal({
