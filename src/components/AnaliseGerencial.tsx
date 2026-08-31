@@ -86,7 +86,13 @@ export function AnaliseGerencial({ model }: { model: DreModel }) {
               <XAxis dataKey="mes" tick={{ fontSize: 12 }} />
               <YAxis tickFormatter={(v) => `${v}%`} tick={{ fontSize: 12 }} />
               <Tooltip formatter={(v) => pct(v as number)} />
-              <Legend />
+              <Legend
+                payload={[
+                  { value: labelDe(a), type: "line", id: "A", color: "#2e5eaa" },
+                  { value: labelDe(b), type: "line", id: "B", color: "#b8720a" },
+                ]}
+              />
+
               <Area
                 dataKey="A"
                 name={labelDe(a)}
