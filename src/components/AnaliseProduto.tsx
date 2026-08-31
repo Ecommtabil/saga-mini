@@ -126,9 +126,9 @@ export function AnaliseProduto({
         {periodo === TOTAL ? "Período Total" : `mês selecionado`}
       </h2>
       {model.data.empresas.length > 1 && (
-        <div className="seg-group">
+        <div className="toolbar">
           <button
-            className={`seg${empresaId === "" ? " active" : ""}`}
+            className={empresaId === "" ? "active" : ""}
             onClick={() => setEmpresaId("")}
           >
             🏢 Consolidado
@@ -136,7 +136,7 @@ export function AnaliseProduto({
           {model.data.empresas.map((e) => (
             <button
               key={e.id}
-              className={`seg${empresaId === e.id ? " active" : ""}`}
+              className={empresaId === e.id ? "active" : ""}
               onClick={() => setEmpresaId(e.id)}
             >
               {e.nome}
