@@ -23,6 +23,7 @@ const KPIS_EMPRESA: KpiDef[] = [
       positivo: (m.margemContribuicao ?? 0) >= 0,
     }),
   },
+  KPI_PONTO_EQUILIBRIO,
 ];
 
 export function DreDetalhado({
