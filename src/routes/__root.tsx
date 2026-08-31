@@ -79,15 +79,22 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Diagnóstico Empresarial — DRE Gerencial" },
+      {
+        name: "description",
+        content:
+          "DRE Gerencial multi-empresa e multi-marketplace para escritórios de contabilidade e e-commerce.",
+      },
+      { name: "author", content: "Ecommtabil" },
+      { property: "og:title", content: "Diagnóstico Empresarial — DRE Gerencial" },
+      {
+        property: "og:description",
+        content: "DRE Gerencial multi-empresa e multi-marketplace.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
+
     links: [
       {
         rel: "stylesheet",
