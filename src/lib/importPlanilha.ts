@@ -126,14 +126,17 @@ export function converter(
       unidades: toNumber(get(row, "unidades")),
       receita: toNumber(get(row, "receita")),
       custo,
-      tarifa_venda: toNumber(get(row, "tarifa_venda")),
-      tarifa_envio: toNumber(get(row, "tarifa_envio")),
-      receita_envio: toNumber(get(row, "receita_envio")),
-      cupom: toNumber(get(row, "cupom")),
-      comissao_afiliado: toNumber(get(row, "comissao_afiliado")),
-      frete_entrega_direta: toNumber(get(row, "frete_entrega_direta")),
-      cancelamentos: toNumber(get(row, "cancelamentos")),
+      // Planilhas de marketplace trazem taxas/deduções como negativas;
+      // no DRE elas são grandezas de despesa (positivas).
+      tarifa_venda: Math.abs(toNumber(get(row, "tarifa_venda"))),
+      tarifa_envio: Math.abs(toNumber(get(row, "tarifa_envio"))),
+      receita_envio: Math.abs(toNumber(get(row, "receita_envio"))),
+      cupom: Math.abs(toNumber(get(row, "cupom"))),
+      comissao_afiliado: Math.abs(toNumber(get(row, "comissao_afiliado"))),
+      frete_entrega_direta: Math.abs(toNumber(get(row, "frete_entrega_direta"))),
+      cancelamentos: Math.abs(toNumber(get(row, "cancelamentos"))),
     });
+
   });
   return { linhas: out, erros, semCusto };
 }
