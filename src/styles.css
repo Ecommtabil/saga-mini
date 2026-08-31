@@ -221,6 +221,7 @@ body.diag{
 }
 .kpi-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:16px; margin-bottom:28px;}
 .kpi-grid.cols-4{grid-template-columns:repeat(4,1fr);}
+.kpi-grid.cols-6{grid-template-columns:repeat(6,1fr);}
 .kpi-card{
   background:#fff; border-radius:14px; padding:18px 20px; box-shadow:0 8px 24px rgba(13,27,62,0.10);
   border-top:4px solid var(--blue-med);
