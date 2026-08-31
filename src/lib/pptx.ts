@@ -197,17 +197,38 @@ export async function exportarApresentacao(
     else map.set(v.sku, { sku: v.sku, nome: v.nome_produto, margem });
   }
   const arr = Array.from(map.values());
-  const melhores = [...arr].sort((a, b) => b.margem - a.margem).slice(0, 5);
-  const piores = [...arr].sort((a, b) => a.margem - b.margem).slice(0, 5);
+  const melhores = [...arr].sort((a, b) => b.margem - a.margem).slice(0, 4);
+  const piores = [...arr].sort((a, b) => a.margem - b.margem).slice(0, 4);
+
+  const taxasMk = new Map<string, { fat: number; taxas: number }>();
+  for (const v of model.vendasDoPeriodo(periodo)) {
+    const taxas =
+      v.tarifa_venda +
+      v.tarifa_envio -
+      v.receita_envio +
+      v.cupom +
+      v.comissao_afiliado +
+      v.frete_entrega_direta;
+    const atual = taxasMk.get(v.marketplace) ?? { fat: 0, taxas: 0 };
+    atual.fat += v.receita;
+    atual.taxas += taxas;
+    taxasMk.set(v.marketplace, atual);
+  }
+  const partes = Array.from(taxasMk.entries())
+    .map(([nome, valores]) => ({ nome, ...valores }))
+    .sort((a, b) => b.fat - a.fat);
+  const totalFat = partes.reduce((total, item) => total + item.fat, 0);
+  const totalTaxas = partes.reduce((total, item) => total + item.taxas, 0);
+  const canaisExibidos = partes.slice(0, 5);
 
   const s5 = pptx.addSlide();
-  titulo(s5, "Onde está a margem", "Produtos");
+  titulo(s5, "Margens por produto e participação por marketplace", "Produtos e canais");
   const bloco = (
     x: number,
     head: string,
     itens: { sku: string; nome: string; margem: number }[],
   ) => {
-    s5.addText(head, { x, y: 1.35, w: 4.2, h: 0.35, fontSize: 14, bold: true, color: AZUL });
+    s5.addText(head, { x, y: 1.25, w: 4.2, h: 0.28, fontSize: 12, bold: true, color: AZUL });
     s5.addTable(
       itens.map((p) => [
         { text: p.nome || p.sku },
@@ -216,64 +237,35 @@ export async function exportarApresentacao(
           options: { align: "right" as const, color: p.margem >= 0 ? "1B7F42" : "B3261E" },
         },
       ]),
-      { x, y: 1.8, w: 4.2, fontSize: 10, border: { type: "solid", color: "E3E8F0", pt: 0.5 } },
+      {
+        x,
+        y: 1.58,
+        w: 4.2,
+        fontSize: 8.5,
+        rowH: 0.28,
+        border: { type: "solid", color: "E3E8F0", pt: 0.5 },
+      },
     );
   };
   bloco(0.6, "Maiores margens", melhores);
-  bloco(5.2, "Atenção imediata", piores);
+  bloco(5.2, "Menores margens", piores);
 
-  // ---------- Participação por marketplace ----------
-  const taxasMk = new Map<string, { fat: number; taxas: number }>();
-  for (const v of model.vendasDoPeriodo(periodo)) {
-    const t =
-      v.tarifa_venda +
-      v.tarifa_envio -
-      v.receita_envio +
-      v.cupom +
-      v.comissao_afiliado +
-      v.frete_entrega_direta;
-    const a = taxasMk.get(v.marketplace) ?? { fat: 0, taxas: 0 };
-    a.fat += v.receita;
-    a.taxas += t;
-    taxasMk.set(v.marketplace, a);
-  }
-  const partes = Array.from(taxasMk.entries())
-    .map(([nome, a]) => ({ nome, ...a }))
-    .sort((x, y) => y.fat - x.fat);
-  const totalFat = partes.reduce((a, b) => a + b.fat, 0);
-  const totalTaxas = partes.reduce((a, b) => a + b.taxas, 0);
-
-  const sPart = pptx.addSlide();
-  titulo(sPart, "Participação no faturamento", "Mix de canais");
-  if (partes.length) {
-    sPart.addChart(
-      pptx.ChartType.pie,
-      [
-        {
-          name: "Faturamento",
-          labels: partes.map((p) => p.nome),
-          values: partes.map((p) => p.fat),
-        },
-      ],
-      {
-        x: 0.6,
-        y: 1.35,
-        w: 4.2,
-        h: 3.4,
-        showPercent: true,
-        showLegend: true,
-        legendPos: "b",
-        dataLabelColor: BRANCO,
-      },
-    );
-  }
-  sPart.addTable(
+  s5.addText("Participação no faturamento", {
+    x: 0.6,
+    y: 3.15,
+    w: 4.2,
+    h: 0.28,
+    fontSize: 12,
+    bold: true,
+    color: AZUL,
+  });
+  s5.addTable(
     [
       ["Marketplace", "Faturamento", "Part. %"].map((t) => ({
         text: t,
         options: { bold: true, color: BRANCO, fill: { color: AZUL } },
       })),
-      ...partes.map((p) => [
+      ...canaisExibidos.map((p) => [
         { text: p.nome },
         { text: brl(p.fat), options: { align: "right" as const } },
         {
@@ -282,43 +274,32 @@ export async function exportarApresentacao(
         },
       ]),
     ],
-    { x: 5.2, y: 1.35, w: 4.2, fontSize: 10, border: { type: "solid", color: "E3E8F0", pt: 0.5 } },
+    {
+      x: 0.6,
+      y: 3.48,
+      w: 4.2,
+      fontSize: 8.5,
+      rowH: 0.28,
+      border: { type: "solid", color: "E3E8F0", pt: 0.5 },
+    },
   );
 
-  // ---------- Participação de taxas por marketplace ----------
-  const taxasOrd = [...partes].sort((a, b) => b.taxas - a.taxas);
-  const sTaxas = pptx.addSlide();
-  titulo(sTaxas, "Participação de taxas por marketplace", "Custo dos canais");
-  if (taxasOrd.length) {
-    sTaxas.addChart(
-      pptx.ChartType.bar,
-      [
-        {
-          name: "Taxas",
-          labels: taxasOrd.map((p) => p.nome),
-          values: taxasOrd.map((p) => p.taxas),
-        },
-      ],
-      {
-        x: 0.6,
-        y: 1.35,
-        w: 4.2,
-        h: 3.4,
-        barDir: "bar",
-        chartColors: [AZUL_CLARO],
-        showLegend: false,
-        catAxisLabelFontSize: 9,
-        valAxisLabelFontSize: 9,
-      },
-    );
-  }
-  sTaxas.addTable(
+  s5.addText("Participação das taxas", {
+    x: 5.2,
+    y: 3.15,
+    w: 4.2,
+    h: 0.28,
+    fontSize: 12,
+    bold: true,
+    color: AZUL,
+  });
+  s5.addTable(
     [
       ["Marketplace", "Taxas", "% das taxas", "% do fat. do canal"].map((t) => ({
         text: t,
         options: { bold: true, color: BRANCO, fill: { color: AZUL } },
       })),
-      ...taxasOrd.map((p) => [
+      ...[...canaisExibidos].sort((a, b) => b.taxas - a.taxas).map((p) => [
         { text: p.nome },
         { text: brl(p.taxas), options: { align: "right" as const } },
         {
@@ -331,7 +312,14 @@ export async function exportarApresentacao(
         },
       ]),
     ],
-    { x: 5.2, y: 1.35, w: 4.2, fontSize: 10, border: { type: "solid", color: "E3E8F0", pt: 0.5 } },
+    {
+      x: 5.2,
+      y: 3.48,
+      w: 4.2,
+      fontSize: 8.5,
+      rowH: 0.28,
+      border: { type: "solid", color: "E3E8F0", pt: 0.5 },
+    },
   );
 
   // ---------- Plano de ação ----------

@@ -125,8 +125,9 @@ export function AnaliseProduto({
         Análise por Produto —{" "}
         {periodo === TOTAL ? "Período Total" : `mês selecionado`}
       </h2>
-      {model.data.empresas.length > 1 && (
-        <div className="toolbar">
+      {model.data.empresas.length > 0 && (
+        <div className="toolbar empresa-analysis-toolbar">
+          <span className="toolbar-label">Análise por empresa:</span>
           <button
             className={empresaId === "" ? "active" : ""}
             onClick={() => setEmpresaId("")}
