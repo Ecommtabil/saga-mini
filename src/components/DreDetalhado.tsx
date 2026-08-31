@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { buildDre, type DreModel } from "@/lib/dre";
 import { DreWideTable } from "./DreWideTable";
-import { KpiCards, type KpiDef } from "./KpiCards";
+import { KpiCards, KPI_PONTO_EQUILIBRIO, type KpiDef } from "./KpiCards";
 import { pct } from "@/lib/format";
 
 const KPIS_EMPRESA: KpiDef[] = [
