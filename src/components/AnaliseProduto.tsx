@@ -25,6 +25,7 @@ export function AnaliseProduto({
   periodo: string;
 }) {
   const [busca, setBusca] = useState("");
+  const [empresaId, setEmpresaId] = useState("");
   const [skuSel, setSkuSel] = useState("");
   const [fornecedor, setFornecedor] = useState("");
   const [marketplace, setMarketplace] = useState("");
