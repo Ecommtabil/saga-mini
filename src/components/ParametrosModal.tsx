@@ -26,6 +26,37 @@ export function ParametrosModal({
       .map((f) => ({ nome: f.nome, valor: String(f.valor) })),
   );
   const [salvando, setSalvando] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const importarDespesas = async (file: File) => {
+    try {
+      const lidas = await lerDespesasFixas(file);
+      if (!lidas.length) {
+        toast.error("Nenhuma despesa encontrada na planilha.");
+        return;
+      }
+      setItens((arr) => {
+        const base = arr.filter((i) => i.nome.trim());
+        const idx = new Map(base.map((i, j) => [i.nome.trim().toLowerCase(), j]));
+        const out = [...base];
+        for (const d of lidas) {
+          const k = d.nome.toLowerCase();
+          const j = idx.get(k);
+          if (j !== undefined) out[j] = { nome: d.nome, valor: String(d.valor) };
+          else {
+            idx.set(k, out.length);
+            out.push({ nome: d.nome, valor: String(d.valor) });
+          }
+        }
+        return out;
+      });
+      toast.success(
+        `${lidas.length} despesa(s) carregadas para ${mesLabel(mes)}. Clique em Salvar para gravar.`,
+      );
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Falha ao ler a planilha.");
+    }
+  };
 
   const recarregar = (novoMes: string, novaEmpresa: string) => {
     setMes(novoMes);
