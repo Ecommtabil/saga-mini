@@ -86,25 +86,36 @@ export function AnaliseGerencial({ model }: { model: DreModel }) {
               <XAxis dataKey="mes" tick={{ fontSize: 12 }} />
               <YAxis tickFormatter={(v) => `${v}%`} tick={{ fontSize: 12 }} />
               <Tooltip formatter={(v) => pct(v as number)} />
-              <Legend />
+              <Legend
+                payload={[
+                  { value: labelDe(a), type: "line", id: "A", color: "#2e5eaa" },
+                  { value: labelDe(b), type: "line", id: "B", color: "#b8720a" },
+                ]}
+              />
+
               <Area
                 dataKey="A"
                 name={labelDe(a)}
-                stroke="#2e5eaa"
+                stroke="none"
                 fill="#2e5eaa"
                 fillOpacity={0.14}
+                legendType="none"
+                tooltipType="none"
                 connectNulls
               />
               <Area
                 dataKey="B"
                 name={labelDe(b)}
-                stroke="#f2c14e"
-                fill="#f2c14e"
+                stroke="none"
+                fill="#b8720a"
                 fillOpacity={0.14}
+                legendType="none"
+                tooltipType="none"
                 connectNulls
               />
               <Line dataKey="A" name={labelDe(a)} stroke="#2e5eaa" strokeWidth={2.5} dot />
               <Line dataKey="B" name={labelDe(b)} stroke="#b8720a" strokeWidth={2.5} dot />
+
             </ComposedChart>
           </ResponsiveContainer>
         </div>

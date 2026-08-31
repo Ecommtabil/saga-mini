@@ -283,8 +283,12 @@ table.prod-table tfoot td.num{text-align:right; font-variant-numeric:tabular-num
 .tag.ok{background:#dcefdd; color:var(--green);}
 .tag.neg{background:#fbdede; color:var(--red);}
 .tag.nd{background:#fdecd0; color:var(--orange);}
-.margin-bar-wrap{width:70px; height:9px; background:#e7edf7; border-radius:4px; position:relative; display:inline-block; vertical-align:middle; margin-right:6px;}
-.margin-bar{height:9px; border-radius:4px; position:absolute; top:0;}
+.margin-cell{display:flex; align-items:center; justify-content:flex-end; gap:8px; white-space:nowrap;}
+.margin-bar-wrap{flex:0 0 70px; width:70px; height:9px; background:#e7edf7; border-radius:4px; position:relative; overflow:hidden;}
+.margin-bar{height:9px; border-radius:4px; position:absolute; top:0; left:0; max-width:100%;}
+.margin-val{min-width:52px; text-align:right; font-variant-numeric:tabular-nums;}
+.prod-table th:nth-child(11), .prod-table td:nth-child(11){min-width:140px;}
+
 
 .filters{display:flex; flex-wrap:wrap; gap:12px; margin-bottom:18px; align-items:flex-end;}
 .filters .field{display:flex; flex-direction:column; gap:4px;}
