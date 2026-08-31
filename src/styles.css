@@ -237,7 +237,7 @@ section.panel{
 }
 section.panel h2{margin:0 0 18px; font-size:17px; color:var(--navy); display:flex; align-items:center; gap:10px;}
 section.panel h2::before{content:""; width:6px; height:20px; background:var(--accent); border-radius:3px; display:inline-block;}
-.chart-box{position:relative; height:300px;}
+.chart-box{position:relative; height:420px;}
 
 .wide-table-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:10px;}
 table.wide-dre{width:100%; border-collapse:collapse; font-size:12.5px; font-variant-numeric:tabular-nums;}
