@@ -50,11 +50,12 @@ export function ImportModal({
     try {
       const res = await importarLinhas(clienteId, linhas);
       toast.success(
-        `${res.linhas} linhas importadas — meses atualizados: ${res.meses
+        `${res.lidas} linhas lidas, consolidadas em ${res.linhas} registros (SKU / mês / empresa / marketplace) — meses atualizados: ${res.meses
           .sort()
           .map(mesLabel)
           .join(", ")}.${semCusto ? ` ${semCusto} linha(s) sem custo cadastrado.` : ""}`,
       );
+
       if (erros.length) toast.warning(`${erros.length} linha(s) ignorada(s).`);
       onImportado();
       onClose();
