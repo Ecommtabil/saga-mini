@@ -31,11 +31,20 @@ export function AnaliseGerencial({ model }: { model: DreModel }) {
   const [b, setB] = useState<keyof Metrics>("lucroLiquido");
 
   const serie = model.meses.map((mes) => model.metrics(mes));
-  const tesoura = model.meses.map((mes, i) => ({
-    mes: mesLabel(mes),
-    A: i === 0 ? null : ah(serie[i]![a] as number | null, serie[i - 1]![a] as number | null),
-    B: i === 0 ? null : ah(serie[i]![b] as number | null, serie[i - 1]![b] as number | null),
-  }));
+  const tesoura = model.meses
+    .map((mes, i) => {
+      if (i === 0) return null;
+      return {
+        mes: mesLabel(mes),
+        A: ah(serie[i]![a] as number | null, serie[i - 1]![a] as number | null),
+        B: ah(serie[i]![b] as number | null, serie[i - 1]![b] as number | null),
+      };
+    })
+    .filter(
+      (r): r is { mes: string; A: number | null; B: number | null } =>
+        r !== null && (r.A !== null || r.B !== null),
+    );
+
 
   const marketplaces = model.marketplaces;
   const participacao = model.meses.map((mes) => {
