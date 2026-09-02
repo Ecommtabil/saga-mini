@@ -202,7 +202,7 @@ function recompose(
       mcUnitaria > 0 ? despesasFixas / mcUnitaria : null,
     margemBrutaPct:
       base.faturamento > 0 ? (lucroBruto / base.faturamento) * 100 : null,
-    margemContribuicaoPct: base.faturamento > 0 ? mcRatio * 100 : null,
+    margemContribuicaoPct: mcPct,
     margemLiquidaPct:
       base.faturamento > 0 ? (lucroLiquido / base.faturamento) * 100 : null,
     custosEDespesas: base.custo + base.despesasVariaveis + despesasFixas,
