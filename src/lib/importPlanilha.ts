@@ -86,14 +86,21 @@ export function normalizarMes(v: unknown): string | null {
     return `${v.getFullYear()}-${String(v.getMonth() + 1).padStart(2, "0")}`;
   const s = String(v ?? "").trim();
   if (!s) return null;
+  const meses = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+  const n = normal(s);
   let m = s.match(/^(\d{4})-(\d{1,2})/);
   if (m) return `${m[1]}-${m[2]!.padStart(2, "0")}`;
-  m = s.match(/^(\d{1,2})[/-](\d{4})$/);
-  if (m) return `${m[2]}-${m[1]!.padStart(2, "0")}`;
-  m = s.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
+  m = s.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})/);
   if (m) return `${m[3]}-${m[2]!.padStart(2, "0")}`;
-  const meses = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
-  m = normal(s).match(/^([a-z]{3})[a-z]*[/ -](\d{2,4})$/);
+  m = s.match(/^(\d{1,2})[/-](\d{4})/);
+  if (m) return `${m[2]}-${m[1]!.padStart(2, "0")}`;
+  // "31 de julho de 2026 13:21 hs." / "31 julho 2026" / "julho de 2026"
+  m = n.match(/(?:^|\s)(?:de\s+)?([a-z]{3,})[a-z]*\s+de\s+(\d{4})/);
+  if (m) {
+    const idx = meses.indexOf(m[1]!.slice(0, 3));
+    if (idx >= 0) return `${m[2]}-${String(idx + 1).padStart(2, "0")}`;
+  }
+  m = n.match(/^([a-z]{3})[a-z]*[/ -](\d{2,4})$/);
   if (m) {
     const idx = meses.indexOf(m[1]!);
     if (idx >= 0) {
@@ -101,8 +108,15 @@ export function normalizarMes(v: unknown): string | null {
       return `${ano}-${String(idx + 1).padStart(2, "0")}`;
     }
   }
+  // fallback: qualquer "<mês em texto> ... <ano>"
+  m = n.match(/([a-z]{3,})[a-z]*\D+(\d{4})/);
+  if (m) {
+    const idx = meses.indexOf(m[1]!.slice(0, 3));
+    if (idx >= 0) return `${m[2]}-${String(idx + 1).padStart(2, "0")}`;
+  }
   return null;
 }
+
 
 export function converter(
   planilha: Planilha,
