@@ -128,9 +128,11 @@ export async function importarLinhas(clienteId: string, linhas: LinhaImportada[]
   }
 
   // Agrupa duplicatas do arquivo na mesma chave para evitar conflito no upsert.
+  // A chave é normalizada (caixa/espaços) para que "Chapa" e "CHAPA" sejam o mesmo SKU.
+  const norm = (s: string) => s.trim().toLowerCase();
   const agrupado = new Map<string, LinhaImportada>();
   for (const l of linhas) {
-    const k = `${l.empresa}|${l.marketplace}|${l.mes}|${l.sku}`;
+    const k = `${norm(l.empresa)}|${norm(l.marketplace)}|${l.mes}|${norm(l.sku)}`;
     const atual = agrupado.get(k);
     if (!atual) {
       agrupado.set(k, { ...l });
@@ -138,7 +140,7 @@ export async function importarLinhas(clienteId: string, linhas: LinhaImportada[]
     }
     atual.unidades += l.unidades;
     atual.receita += l.receita;
-    atual.custo = (atual.custo ?? 0) + (l.custo ?? 0);
+    if (l.custo !== null) atual.custo = (atual.custo ?? 0) + l.custo;
     atual.tarifa_venda += l.tarifa_venda;
     atual.tarifa_envio += l.tarifa_envio;
     atual.receita_envio += l.receita_envio;
@@ -147,6 +149,7 @@ export async function importarLinhas(clienteId: string, linhas: LinhaImportada[]
     atual.frete_entrega_direta += l.frete_entrega_direta;
     atual.cancelamentos += l.cancelamentos;
   }
+
 
   const rows = Array.from(agrupado.values()).map((l) => ({
     cliente_id: clienteId,
