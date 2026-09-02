@@ -37,9 +37,19 @@ export type Planilha = { colunas: string[]; linhas: Record<string, unknown>[] };
 export async function lerArquivo(file: File): Promise<Planilha> {
   const buf = await file.arrayBuffer();
   const wb = XLSX.read(buf, { cellDates: true });
-  const ws = wb.Sheets[wb.SheetNames[0]!]!;
+  // Prefere a aba de vendas; ignora abas de instruções.
+  const nome =
+    wb.SheetNames.find((n) => normal(n).includes("venda")) ??
+    wb.SheetNames.find((n) => !normal(n).startsWith("instru")) ??
+    wb.SheetNames[0]!;
+  const ws = wb.Sheets[nome]!;
   const linhas = XLSX.utils.sheet_to_json<Record<string, unknown>>(ws, { defval: null });
-  const colunas = Object.keys(linhas[0] ?? {});
+  const cabecalho = (
+    XLSX.utils.sheet_to_json<unknown[]>(ws, { header: 1, blankrows: false })[0] ?? []
+  )
+    .map((c) => String(c ?? "").trim())
+    .filter(Boolean);
+  const colunas = cabecalho.length ? cabecalho : Object.keys(linhas[0] ?? {});
   return { colunas, linhas };
 }
 
