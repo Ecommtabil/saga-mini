@@ -108,6 +108,26 @@ export function AnaliseProduto({
   const skus = Array.from(new Set(linhas.map((l) => l.sku))).sort();
   const idx = skuSel ? skus.indexOf(skuSel) : -1;
 
+  const semCusto = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const l of linhas) {
+      if (l.custo === null && !map.has(l.sku)) map.set(l.sku, l.produto);
+    }
+    return Array.from(map, ([sku, produto]) => ({ sku, produto }));
+  }, [linhas]);
+
+  const exportarSemCusto = async () => {
+    const XLSX = await import("xlsx");
+    const ws = XLSX.utils.aoa_to_sheet([
+      ["SKU", "DESCRIÇÃO DO ITEM", "CUSTO"],
+      ...semCusto.map((s) => [s.sku, s.produto, ""]),
+    ]);
+    ws["!cols"] = [{ wch: 20 }, { wch: 60 }, { wch: 14 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "SKUs sem custo");
+    XLSX.writeFile(wb, "skus-sem-custo.xlsx");
+  };
+
   const totais = filtradas.reduce(
     (acc, l) => ({
       unidades: acc.unidades + l.unidades,
