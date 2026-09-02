@@ -93,6 +93,7 @@ export function KpiCards({
         const m = fonte.atual;
         const sub = k.sub?.(m) ?? null;
         const valor = k.pick(m);
+        const valorFormatado = k.format ? k.format(valor) : brl(valor);
         const dados = fonte.serie.map((s) => ({
           mes: mesLabel(s.mes),
           v: k.pick(s) ?? 0,
@@ -100,7 +101,7 @@ export function KpiCards({
         return (
           <div className="kpi-card" key={k.label}>
             <div className="label">{k.label}</div>
-            <div className="value">{brl(valor)}</div>
+            <div className="value">{valorFormatado}</div>
             {sub && (
               <div
                 className={`sub ${sub.positivo === null ? "na" : sub.positivo ? "pos" : "neg"}`}
