@@ -117,6 +117,24 @@ export function normalizarMes(v: unknown): string | null {
   return null;
 }
 
+const iso = (y: string | number, m: string | number, d: string | number) =>
+  `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+
+/** Data da venda como "YYYY-MM-DD" quando possível. */
+export function normalizarData(v: unknown): string | null {
+  if (v instanceof Date) return iso(v.getFullYear(), v.getMonth() + 1, v.getDate());
+  const s = String(v ?? "").trim();
+  if (!s) return null;
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (m) return iso(m[1]!, m[2]!, m[3]!);
+  m = s.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})/);
+  if (m) return iso(m[3]!, m[2]!, m[1]!);
+  const mes = normalizarMes(s);
+  return mes ? `${mes}-01` : null;
+}
+
+
+
 
 export function converter(
   planilha: Planilha,
@@ -143,7 +161,10 @@ export function converter(
     if (custo === null) semCusto++;
     out.push({
       mes,
+      data_venda: normalizarData(get(row, "mes")),
+      estado: String(get(row, "estado") ?? "").trim() || null,
       empresa: String(get(row, "empresa") ?? "").trim() || "Empresa única",
+
       marketplace: String(get(row, "marketplace") ?? "").trim() || "N/D",
       sku,
       nome_produto: String(get(row, "nome_produto") ?? "").trim() || sku,

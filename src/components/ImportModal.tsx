@@ -50,11 +50,12 @@ export function ImportModal({
     try {
       const res = await importarLinhas(clienteId, linhas);
       toast.success(
-        `${res.lidas} linhas lidas, consolidadas em ${res.linhas} registros (SKU / mês / empresa / marketplace) — meses atualizados: ${res.meses
+        `${res.linhas} linhas importadas (uma por venda) — meses atualizados: ${res.meses
           .sort()
           .map(mesLabel)
           .join(", ")}.${semCusto ? ` ${semCusto} linha(s) sem custo cadastrado.` : ""}`,
       );
+
 
       if (erros.length) toast.warning(`${erros.length} linha(s) ignorada(s).`);
       onImportado();
@@ -74,13 +75,14 @@ export function ImportModal({
           Use a aba <strong>Vendas Reorganizado</strong> do modelo: uma linha por
           venda (Empresa, Data da Venda, Marketplace, SKU, receitas, tarifas,
           cupom, comissão de afiliado, frete de entrega direta, cancelamentos).
-          As linhas são somadas automaticamente por SKU / mês / empresa /
-          marketplace e valores negativos de tarifas são tratados como despesa.
-          Importar um novo arquivo atualiza apenas os meses presentes nele — os
+          Cada linha da planilha é gravada individualmente (nada é somado na
+          importação) e valores negativos de tarifas são tratados como despesa.
+          Importar um novo arquivo substitui apenas os meses presentes nele — os
           demais meses já salvos permanecem intactos. Linhas sem custo não
           bloqueiam a importação: o produto é marcado como "Custo não
           cadastrado".
         </p>
+
         <button className="btn" onClick={baixarModelo}>
           ⬇ Baixar modelo (.xlsx)
         </button>

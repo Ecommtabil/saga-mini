@@ -152,7 +152,9 @@ export type Database = {
           created_at: string
           cupom: number
           custo: number | null
+          data_venda: string | null
           empresa_id: string
+          estado: string | null
           fornecedor: string | null
           frete_entrega_direta: number
           id: string
@@ -173,7 +175,9 @@ export type Database = {
           created_at?: string
           cupom?: number
           custo?: number | null
+          data_venda?: string | null
           empresa_id: string
+          estado?: string | null
           fornecedor?: string | null
           frete_entrega_direta?: number
           id?: string
@@ -194,7 +198,9 @@ export type Database = {
           created_at?: string
           cupom?: number
           custo?: number | null
+          data_venda?: string | null
           empresa_id?: string
+          estado?: string | null
           fornecedor?: string | null
           frete_entrega_direta?: number
           id?: string
