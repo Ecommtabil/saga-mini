@@ -82,7 +82,12 @@ export async function exportarApresentacao(
   const s2 = pptx.addSlide();
   titulo(s2, "Como o negócio performou", "Resultado do período");
   const stats: [string, string, string][] = [
-    ["Faturamento", brl(m.faturamento), `${m.unidades} unidades vendidas`],
+    [
+      "Unidades Vendidas",
+      num(m.unidades, 0),
+      m.unidades > 0 ? `Ticket médio ${brl(m.faturamento / m.unidades)}` : "N/D",
+    ],
+    ["Faturamento", brl(m.faturamento), `${pct(m.margemContribuicaoPct)} de margem de contribuição`],
     [
       "Margem de Contribuição",
       brl(m.margemContribuicao),
@@ -100,27 +105,27 @@ export async function exportarApresentacao(
     ],
   ];
   stats.forEach(([label, valor, nota], i) => {
-    const x = 0.6 + i * 2.25;
+    const x = 0.6 + i * 1.8;
     s2.addShape(pptx.ShapeType.roundRect, {
       x,
       y: 1.6,
-      w: 2.05,
+      w: 1.6,
       h: 1.8,
       fill: { color: "F2F5FA" },
       line: { color: "DDE3EE" },
       rectRadius: 0.08,
     });
-    s2.addText(label, { x: x + 0.15, y: 1.75, w: 1.8, h: 0.3, fontSize: 11, color: CINZA });
+    s2.addText(label, { x: x + 0.12, y: 1.75, w: 1.36, h: 0.3, fontSize: 10.5, color: CINZA });
     s2.addText(valor, {
-      x: x + 0.15,
+      x: x + 0.12,
       y: 2.1,
-      w: 1.8,
+      w: 1.36,
       h: 0.6,
-      fontSize: 17,
+      fontSize: 15,
       bold: true,
       color: AZUL,
     });
-    s2.addText(nota, { x: x + 0.15, y: 2.75, w: 1.8, h: 0.5, fontSize: 9.5, color: CINZA });
+    s2.addText(nota, { x: x + 0.12, y: 2.75, w: 1.36, h: 0.5, fontSize: 9, color: CINZA });
   });
   s2.addText(
     `Ponto de equilíbrio do período: ${brl(m.pontoEquilibrio)} de faturamento — abaixo disso a operação opera no prejuízo.`,
