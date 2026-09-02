@@ -108,6 +108,8 @@ export async function fetchDataset(clienteId: string): Promise<Dataset> {
 
 export type LinhaImportada = {
   mes: string;
+  data_venda?: string | null;
+  estado?: string | null;
   empresa: string;
   marketplace: string;
   sku: string;
@@ -125,7 +127,10 @@ export type LinhaImportada = {
   cancelamentos: number;
 };
 
-/** Upsert por (empresa, marketplace, mês, sku). Meses ausentes ficam intactos. */
+/**
+ * Grava a planilha linha por linha (uma linha do arquivo = um registro).
+ * Os meses presentes no arquivo são substituídos; os demais ficam intactos.
+ */
 export async function importarLinhas(clienteId: string, linhas: LinhaImportada[]) {
   const nomesEmpresa = Array.from(new Set(linhas.map((l) => l.empresa)));
   const { data: existentes, error: e1 } = await supabase
@@ -145,35 +150,15 @@ export async function importarLinhas(clienteId: string, linhas: LinhaImportada[]
     for (const n of novas ?? []) mapa.set(n.nome, n.id);
   }
 
-  // Agrupa duplicatas do arquivo na mesma chave para evitar conflito no upsert.
-  // A chave é normalizada (caixa/espaços) para que "Chapa" e "CHAPA" sejam o mesmo SKU.
-  const norm = (s: string) => s.trim().toLowerCase();
-  const agrupado = new Map<string, LinhaImportada>();
-  for (const l of linhas) {
-    const k = `${norm(l.empresa)}|${norm(l.marketplace)}|${l.mes}|${norm(l.sku)}`;
-    const atual = agrupado.get(k);
-    if (!atual) {
-      agrupado.set(k, { ...l });
-      continue;
-    }
-    atual.unidades += l.unidades;
-    atual.receita += l.receita;
-    if (l.custo !== null) atual.custo = (atual.custo ?? 0) + l.custo;
-    atual.tarifa_venda += l.tarifa_venda;
-    atual.tarifa_envio += l.tarifa_envio;
-    atual.receita_envio += l.receita_envio;
-    atual.cupom += l.cupom;
-    atual.comissao_afiliado += l.comissao_afiliado;
-    atual.frete_entrega_direta += l.frete_entrega_direta;
-    atual.cancelamentos += l.cancelamentos;
-  }
+  const meses = Array.from(new Set(linhas.map((l) => l.mes)));
 
-
-  const rows = Array.from(agrupado.values()).map((l) => ({
+  const rows = linhas.map((l) => ({
     cliente_id: clienteId,
     empresa_id: mapa.get(l.empresa)!,
     marketplace: l.marketplace,
     mes: l.mes,
+    data_venda: l.data_venda ?? null,
+    estado: l.estado ?? null,
     sku: l.sku,
     nome_produto: l.nome_produto,
     fornecedor: l.fornecedor,
@@ -189,21 +174,23 @@ export async function importarLinhas(clienteId: string, linhas: LinhaImportada[]
     cancelamentos: l.cancelamentos,
   }));
 
-  for (let i = 0; i < rows.length; i += 400) {
+  // Substitui apenas os meses presentes no arquivo.
+  const { error: eDel } = await supabase
+    .from("vendas_produto")
+    .delete()
+    .eq("cliente_id", clienteId)
+    .in("mes", meses);
+  if (eDel) throw eDel;
+
+  for (let i = 0; i < rows.length; i += 500) {
     const { error } = await supabase
       .from("vendas_produto")
-      .upsert(rows.slice(i, i + 400), {
-        onConflict: "cliente_id,empresa_id,marketplace,mes,sku",
-      });
+      .insert(rows.slice(i, i + 500));
     if (error) throw error;
   }
-  return {
-    lidas: linhas.length,
-    linhas: rows.length,
-    meses: Array.from(new Set(rows.map((r) => r.mes))),
-  };
-
+  return { lidas: linhas.length, linhas: rows.length, meses };
 }
+
 
 export async function salvarAliquota(clienteId: string, mes: string, pct: number) {
   const { error } = await supabase
