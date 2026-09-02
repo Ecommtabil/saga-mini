@@ -186,8 +186,7 @@ function recompose(
   const lucroBruto = receitaLiquida - base.custo;
   const margemContribuicao = lucroBruto - base.despesasVariaveis;
   const lucroLiquido = margemContribuicao - despesasFixas;
-  const mcRatio =
-    base.faturamento > 0 ? margemContribuicao / base.faturamento : 0;
+  const mcPct = base.faturamento > 0 ? (margemContribuicao / base.faturamento) * 100 : 0;
   const mcUnitaria = base.unidades > 0 ? margemContribuicao / base.unidades : 0;
   return {
     ...base,
@@ -198,7 +197,7 @@ function recompose(
     margemContribuicao,
     despesasFixas,
     lucroLiquido,
-    pontoEquilibrio: mcRatio > 0 ? despesasFixas / mcRatio : null,
+    pontoEquilibrio: mcPct > 0 ? despesasFixas / (mcPct / 100) : null,
     pontoEquilibrioUnidades:
       mcUnitaria > 0 ? despesasFixas / mcUnitaria : null,
     margemBrutaPct:
