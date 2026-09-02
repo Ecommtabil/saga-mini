@@ -2,22 +2,23 @@ import * as XLSX from "xlsx";
 import type { LinhaImportada } from "./data";
 
 export const CAMPOS = [
-  { key: "mes", label: "Mês", obrigatorio: true, aliases: ["mês", "mes", "periodo", "período"] },
+  { key: "mes", label: "Data da Venda / Mês", obrigatorio: true, aliases: ["data da venda", "data", "mês", "mes", "periodo", "período", "competencia", "competência"] },
   { key: "empresa", label: "Empresa", aliases: ["empresa", "loja", "cnpj"] },
   { key: "marketplace", label: "Marketplace", aliases: ["marketplace", "canal", "canal de venda"] },
   { key: "sku", label: "SKU", obrigatorio: true, aliases: ["sku", "codigo", "código"] },
   { key: "nome_produto", label: "Produto", aliases: ["produto", "nome do produto", "descricao", "descrição"] },
   { key: "fornecedor", label: "Fornecedor", aliases: ["fornecedor"] },
   { key: "unidades", label: "Unidades", aliases: ["unidades", "quantidade", "qtd"] },
-  { key: "receita", label: "Receita", obrigatorio: true, aliases: ["receita", "faturamento", "valor de venda"] },
+  { key: "receita", label: "Receita por Produto", obrigatorio: true, aliases: ["receita por produto", "receita", "faturamento", "valor de venda"] },
   { key: "custo", label: "Custo", aliases: ["custo", "cmv", "custo do produto"] },
-  { key: "tarifa_venda", label: "Tarifa de Venda", aliases: ["tarifa de venda", "comissao", "comissão", "tarifa venda"] },
-  { key: "tarifa_envio", label: "Tarifa de Envio", aliases: ["tarifa de envio", "tarifa envio", "frete"] },
-  { key: "receita_envio", label: "Receita por Envio", aliases: ["receita por envio", "receita envio"] },
+  { key: "tarifa_venda", label: "Tarifa de venda e impostos", aliases: ["tarifa de venda e impostos", "tarifa de venda", "comissao", "comissão", "tarifa venda"] },
+  { key: "tarifa_envio", label: "Tarifas de Envio", aliases: ["tarifas de envio", "tarifa de envio", "tarifa envio", "frete"] },
+  { key: "receita_envio", label: "Receita por envio", aliases: ["receita por envio", "receita envio"] },
   { key: "cupom", label: "Cupom", aliases: ["cupom", "desconto"] },
   { key: "comissao_afiliado", label: "Comissão Afiliado", aliases: ["comissao afiliado", "comissão afiliado", "afiliado"] },
   { key: "frete_entrega_direta", label: "Frete Entrega Direta", aliases: ["frete entrega direta", "entrega direta"] },
-  { key: "cancelamentos", label: "Cancelamentos/Devoluções", aliases: ["cancelamentos", "devolucoes", "devoluções", "cancelamentos/devoluções"] },
+  { key: "cancelamentos", label: "Cancelamentos e Reembolsos", aliases: ["cancelamentos e reembolsos", "cancelamentos", "devolucoes", "devoluções", "cancelamentos/devoluções", "reembolsos"] },
+  { key: "estado", label: "Estado (UF)", aliases: ["estado", "uf"] },
 ] as const;
 
 export type CampoKey = (typeof CAMPOS)[number]["key"];
