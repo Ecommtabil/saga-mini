@@ -201,7 +201,7 @@ function recompose(
     margemContribuicao,
     despesasFixas,
     lucroLiquido,
-    pontoEquilíbrio: margemContribuicaoPct > 0 ? despesasFixas / (margemContribuicaoPct / 100) : null,
+    pontoEquilibrio: margemContribuicaoPct > 0 ? despesasFixas / (margemContribuicaoPct / 100) : null,
     pontoEquilibrioUnidades:
       mcUnitaria > 0 ? despesasFixas / mcUnitaria : null,
     margemBrutaPct:
