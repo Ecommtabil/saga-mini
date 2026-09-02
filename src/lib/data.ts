@@ -179,7 +179,12 @@ export async function importarLinhas(clienteId: string, linhas: LinhaImportada[]
       });
     if (error) throw error;
   }
-  return { linhas: rows.length, meses: Array.from(new Set(rows.map((r) => r.mes))) };
+  return {
+    lidas: linhas.length,
+    linhas: rows.length,
+    meses: Array.from(new Set(rows.map((r) => r.mes))),
+  };
+
 }
 
 export async function salvarAliquota(clienteId: string, mes: string, pct: number) {
