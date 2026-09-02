@@ -86,70 +86,81 @@ export function AnaliseGerencial({ model }: { model: DreModel }) {
             </select>
           </div>
         </div>
-        {tesoura.length === 0 ? (
-          <p className="muted">
-            A variação mês a mês (AH) precisa de pelo menos duas competências com dados.
-            Importe outro mês para traçar as linhas do gráfico tesoura.
+        {ultimo && (
+          <p className="muted" style={{ marginTop: 0 }}>
+            Diferença em {ultimo.mes}: {diferenca >= 0 ? "+" : ""}
+            {diferenca.toFixed(1)} p.p. (
+            {diferenca >= 0 ? "A cresceu mais que B" : "B cresceu mais que A"})
           </p>
-        ) : (
-          <div className="chart-box">
-            <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={tesoura}>
-                <CartesianGrid stroke="#eaf1fb" />
-                <XAxis dataKey="mes" tick={{ fontSize: 12 }} />
-                <YAxis
-                  tickFormatter={(v) => `${Math.round(v as number)}%`}
-                  tick={{ fontSize: 12 }}
-                  domain={["auto", "auto"]}
-                />
-                <Tooltip formatter={(v) => pct(v as number)} />
-                <Legend
-                  payload={[
-                    { value: labelDe(a), type: "line", id: "A", color: "#2e5eaa" },
-                    { value: labelDe(b), type: "line", id: "B", color: "#b8720a" },
-                  ]}
-                />
-
-                <Area
-                  dataKey="A"
-                  name={labelDe(a)}
-                  stroke="none"
-                  fill="#2e5eaa"
-                  fillOpacity={0.14}
-                  legendType="none"
-                  tooltipType="none"
-                  connectNulls
-                />
-                <Area
-                  dataKey="B"
-                  name={labelDe(b)}
-                  stroke="none"
-                  fill="#b8720a"
-                  fillOpacity={0.14}
-                  legendType="none"
-                  tooltipType="none"
-                  connectNulls
-                />
-                <Line
-                  dataKey="A"
-                  name={labelDe(a)}
-                  stroke="#2e5eaa"
-                  strokeWidth={2.5}
-                  dot
-                  connectNulls
-                />
-                <Line
-                  dataKey="B"
-                  name={labelDe(b)}
-                  stroke="#b8720a"
-                  strokeWidth={2.5}
-                  dot
-                  connectNulls
-                />
-              </ComposedChart>
-            </ResponsiveContainer>
-          </div>
         )}
+        <div className="chart-box">
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart data={tesoura} margin={{ top: 16, right: 24, bottom: 8, left: 8 }}>
+              <CartesianGrid stroke="#eaf1fb" />
+              <XAxis dataKey="mes" tick={{ fontSize: 12 }} />
+              <YAxis
+                tickFormatter={(v) => `${Math.round(v as number)}%`}
+                tick={{ fontSize: 12 }}
+                domain={["auto", "auto"]}
+              />
+              <Tooltip formatter={(v) => pct(v as number)} />
+              <Legend
+                payload={[
+                  { value: `${labelDe(a)} (AH %)`, type: "line", id: "A", color: "#2e5eaa" },
+                  { value: `${labelDe(b)} (AH %)`, type: "line", id: "B", color: "#c00000" },
+                ]}
+              />
+
+              <Area
+                type="monotone"
+                dataKey="A"
+                name={labelDe(a)}
+                stroke="none"
+                fill="#2e5eaa"
+                fillOpacity={0.12}
+                legendType="none"
+                tooltipType="none"
+                connectNulls
+              />
+              <Area
+                type="monotone"
+                dataKey="B"
+                name={labelDe(b)}
+                stroke="none"
+                fill="#c00000"
+                fillOpacity={0.12}
+                legendType="none"
+                tooltipType="none"
+                connectNulls
+              />
+              <Line
+                type="monotone"
+                dataKey="A"
+                name={labelDe(a)}
+                stroke="#2e5eaa"
+                strokeWidth={2.5}
+                dot={{ r: 4 }}
+                connectNulls
+              />
+              <Line
+                type="monotone"
+                dataKey="B"
+                name={labelDe(b)}
+                stroke="#c00000"
+                strokeWidth={2.5}
+                dot={{ r: 4 }}
+                connectNulls
+              />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="muted">
+          As linhas mostram a Análise Horizontal (variação % vs. mês anterior) de cada
+          indicador, não os valores absolutos. O primeiro mês é a base (0%). A área
+          sombreada entre elas ("abertura da tesoura") mostra qual indicador está crescendo
+          mais rápido mês a mês.
+        </p>
+
 
       </section>
 
