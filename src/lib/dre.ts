@@ -62,12 +62,12 @@ export function metricsFrom(
   const lucroLiquido =
     despesasFixas === null ? null : margemContribuicao - despesasFixas;
   const unidades = s(rows, (r) => r.unidades);
-  // Ponto de Equilíbrio (R$) = Despesas Fixas ÷ (Margem de Contribuição % ÷ 100)
+  // Ponto de Equilíbrio (R$) = Despesas Fixas ÷ Margem de Contribuição %
   const margemContribuicaoPct = faturamento > 0 ? (margemContribuicao / faturamento) * 100 : 0;
   const pontoEquilibrio =
     despesasFixas === null || margemContribuicaoPct <= 0
       ? null
-      : despesasFixas / (margemContribuicaoPct / 100);
+      : despesasFixas / margemContribuicaoPct;
   const mcUnitaria = unidades > 0 ? margemContribuicao / unidades : 0;
   const pontoEquilibrioUnidades =
     despesasFixas === null || mcUnitaria <= 0 ? null : despesasFixas / mcUnitaria;
@@ -189,7 +189,7 @@ function recompose(
   const lucroBruto = receitaLiquida - base.custo;
   const margemContribuicao = lucroBruto - base.despesasVariaveis;
   const lucroLiquido = margemContribuicao - despesasFixas;
-  // Ponto de Equilíbrio (R$) = Despesas Fixas ÷ (Margem de Contribuição % ÷ 100)
+  // Ponto de Equilíbrio (R$) = Despesas Fixas ÷ Margem de Contribuição %
   const margemContribuicaoPct = base.faturamento > 0 ? (margemContribuicao / base.faturamento) * 100 : 0;
   const mcUnitaria = base.unidades > 0 ? margemContribuicao / base.unidades : 0;
   return {
@@ -201,7 +201,7 @@ function recompose(
     margemContribuicao,
     despesasFixas,
     lucroLiquido,
-    pontoEquilibrio: margemContribuicaoPct > 0 ? despesasFixas / (margemContribuicaoPct / 100) : null,
+    pontoEquilibrio: margemContribuicaoPct > 0 ? despesasFixas / margemContribuicaoPct : null,
     pontoEquilibrioUnidades:
       mcUnitaria > 0 ? despesasFixas / mcUnitaria : null,
     margemBrutaPct:
