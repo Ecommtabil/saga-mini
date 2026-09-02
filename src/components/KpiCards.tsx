@@ -21,13 +21,25 @@ export const KPI_PONTO_EQUILIBRIO: KpiDef = {
     if (m.pontoEquilibrio === null)
       return { texto: "Sem margem de contribuição positiva", positivo: null };
     const cobertura = m.pontoEquilibrio > 0 ? (m.faturamento / m.pontoEquilibrio) * 100 : null;
-    const unidades = m.pontoEquilibrioUnidades;
-    const texto =
-      unidades === null || unidades <= 0
-        ? `Faturamento cobre ${pct(cobertura)} do necessário`
-        : `Faturamento cobre ${pct(cobertura)} do necessário · equivale a ${num(unidades, 0)} vendas`;
     return {
-      texto,
+      texto: `Faturamento cobre ${pct(cobertura)} do necessário`,
+      positivo: (cobertura ?? 0) >= 100,
+    };
+  },
+};
+
+export const KPI_PONTO_EQUILIBRIO_UNIDADES: KpiDef = {
+  label: "Ponto de Equilíbrio (vendas)",
+  pick: (m) => m.pontoEquilibrioUnidades,
+  format: (v) => (v === null || v === undefined ? "N/D" : `${num(v, 0)} vendas`),
+  atribuivel: true,
+  sub: (m) => {
+    if (m.pontoEquilibrioUnidades === null)
+      return { texto: "Sem margem de contribuição positiva", positivo: null };
+    const cobertura =
+      m.pontoEquilibrioUnidades > 0 ? (m.unidades / m.pontoEquilibrioUnidades) * 100 : null;
+    return {
+      texto: `Vendas atuais cobrem ${pct(cobertura)} do necessário · ${brl(m.pontoEquilibrio)}`,
       positivo: (cobertura ?? 0) >= 100,
     };
   },
@@ -61,6 +73,7 @@ export const KPI_PADRAO: KpiDef[] = [
     }),
   },
   KPI_PONTO_EQUILIBRIO,
+  KPI_PONTO_EQUILIBRIO_UNIDADES,
 ];
 
 export function KpiCards({
@@ -85,7 +98,7 @@ export function KpiCards({
 
   return (
     <div
-      className={`kpi-grid${kpis.length === 4 ? " cols-4" : kpis.length === 6 ? " cols-6" : ""}`}
+      className={`kpi-grid${kpis.length === 4 ? " cols-4" : kpis.length === 6 ? " cols-6" : kpis.length === 7 ? " cols-7" : ""}`}
     >
       {kpis.map((k) => {
         const fonte =
