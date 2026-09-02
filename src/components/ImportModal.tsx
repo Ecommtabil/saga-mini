@@ -70,10 +70,15 @@ export function ImportModal({
       <div className="modal-box lg" onClick={(e) => e.stopPropagation()}>
         <h3>Importar planilha de vendas</h3>
         <p className="modal-note">
-          Uma linha por SKU / mês / empresa / marketplace. Importar um novo
-          arquivo atualiza apenas os meses presentes nele — os demais meses já
-          salvos permanecem intactos. Linhas sem custo não bloqueiam a
-          importação: o produto é marcado como "Custo não cadastrado".
+          Use a aba <strong>Vendas Reorganizado</strong> do modelo: uma linha por
+          venda (Empresa, Data da Venda, Marketplace, SKU, receitas, tarifas,
+          cupom, comissão de afiliado, frete de entrega direta, cancelamentos).
+          As linhas são somadas automaticamente por SKU / mês / empresa /
+          marketplace e valores negativos de tarifas são tratados como despesa.
+          Importar um novo arquivo atualiza apenas os meses presentes nele — os
+          demais meses já salvos permanecem intactos. Linhas sem custo não
+          bloqueiam a importação: o produto é marcado como "Custo não
+          cadastrado".
         </p>
         <button className="btn" onClick={baixarModelo}>
           ⬇ Baixar modelo (.xlsx)
