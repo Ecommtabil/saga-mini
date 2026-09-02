@@ -35,6 +35,24 @@ export async function deleteCliente(id: string) {
   if (error) throw error;
 }
 
+/** Busca todas as vendas do cliente em páginas (a API limita ~1000 linhas por request). */
+async function fetchVendas(clienteId: string) {
+  const PAGE = 1000;
+  const todas: unknown[] = [];
+  for (let de = 0; ; de += PAGE) {
+    const { data, error } = await supabase
+      .from("vendas_produto")
+      .select("*")
+      .eq("cliente_id", clienteId)
+      .order("id", { ascending: true })
+      .range(de, de + PAGE - 1);
+    if (error) throw error;
+    todas.push(...(data ?? []));
+    if (!data || data.length < PAGE) break;
+  }
+  return todas;
+}
+
 export async function fetchDataset(clienteId: string): Promise<Dataset> {
   const [cli, emp, ven, fix, par] = await Promise.all([
     supabase
@@ -47,15 +65,15 @@ export async function fetchDataset(clienteId: string): Promise<Dataset> {
       .select("id, cliente_id, nome")
       .eq("cliente_id", clienteId)
       .order("nome"),
-    supabase.from("vendas_produto").select("*").eq("cliente_id", clienteId),
+    fetchVendas(clienteId),
     supabase.from("despesas_fixas").select("*").eq("cliente_id", clienteId),
     supabase.from("parametros_mensais").select("*").eq("cliente_id", clienteId),
   ]);
   if (cli.error) throw cli.error;
   if (emp.error) throw emp.error;
-  if (ven.error) throw ven.error;
   if (fix.error) throw fix.error;
   if (par.error) throw par.error;
+
 
   const numeric = (v: unknown) => (v === null || v === undefined ? null : Number(v));
   return {
