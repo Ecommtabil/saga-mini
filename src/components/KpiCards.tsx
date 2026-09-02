@@ -45,7 +45,18 @@ export const KPI_PONTO_EQUILIBRIO_UNIDADES: KpiDef = {
   },
 };
 
+export const KPI_UNIDADES_VENDIDAS: KpiDef = {
+  label: "Unidades Vendidas",
+  pick: (m) => m.unidades,
+  format: (v) => num(v, 0),
+  sub: (m) => ({
+    texto: `Ticket médio ${m.unidades > 0 ? brl(m.faturamento / m.unidades) : "N/D"}`,
+    positivo: null,
+  }),
+};
+
 export const KPI_PADRAO: KpiDef[] = [
+  KPI_UNIDADES_VENDIDAS,
   { label: "Faturamento", pick: (m) => m.faturamento },
   { label: "Receita Líquida", pick: (m) => m.receitaLiquida },
   {
@@ -98,7 +109,7 @@ export function KpiCards({
 
   return (
     <div
-      className={`kpi-grid${kpis.length === 4 ? " cols-4" : kpis.length === 6 ? " cols-6" : kpis.length === 7 ? " cols-7" : ""}`}
+      className={`kpi-grid${kpis.length === 4 ? " cols-4" : kpis.length === 6 ? " cols-6" : kpis.length === 7 ? " cols-7" : kpis.length === 8 ? " cols-8" : ""}`}
     >
       {kpis.map((k) => {
         const fonte =
