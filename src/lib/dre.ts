@@ -90,7 +90,7 @@ export function metricsFrom(
     pontoEquilibrio,
     pontoEquilibrioUnidades,
     margemBrutaPct: faturamento > 0 ? (lucroBruto / faturamento) * 100 : null,
-    margemContribuicaoPct: faturamento > 0 ? mcRatio * 100 : null,
+    margemContribuicaoPct: mcPct,
     margemLiquidaPct:
       faturamento > 0 && lucroLiquido !== null
         ? (lucroLiquido / faturamento) * 100
