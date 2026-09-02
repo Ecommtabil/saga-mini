@@ -90,10 +90,12 @@ export async function exportarApresentacao(
     ],
     ["Lucro Líquido", brl(m.lucroLiquido), `Margem líquida ${pct(m.margemLiquidaPct)}`],
     [
-      "Ponto de Equilíbrio",
-      brl(m.pontoEquilibrio),
+      "Ponto de Equilíbrio (vendas)",
+      m.pontoEquilibrioUnidades && m.pontoEquilibrioUnidades > 0
+        ? `${num(m.pontoEquilibrioUnidades, 0)} vendas`
+        : "N/D",
       m.pontoEquilibrio && m.pontoEquilibrio > 0
-        ? `Faturamento cobre ${pct((m.faturamento / m.pontoEquilibrio) * 100)} · ${num(m.pontoEquilibrioUnidades, 0)} vendas`
+        ? `equivale a ${brl(m.pontoEquilibrio)} · faturamento cobre ${pct((m.faturamento / m.pontoEquilibrio) * 100)}`
         : "Sem margem de contribuição positiva",
     ],
   ];
