@@ -1,11 +1,12 @@
 import { Line, LineChart, ResponsiveContainer } from "recharts";
 import { TOTAL, type DreModel, type Metrics } from "@/lib/dre";
-import { brl, mesLabel, pct } from "@/lib/format";
+import { brl, mesLabel, num, pct } from "@/lib/format";
 import type { Filter } from "@/lib/dre";
 
 export type KpiDef = {
   label: string;
   pick: (m: Metrics) => number | null;
+  format?: (v: number | null) => string;
   sub?: (m: Metrics) => { texto: string; positivo: boolean | null } | null;
   /** Força o modo de atribuição das métricas deste KPI (ex.: ponto de equilíbrio precisa das fixas). */
   atribuivel?: boolean;
@@ -14,13 +15,19 @@ export type KpiDef = {
 export const KPI_PONTO_EQUILIBRIO: KpiDef = {
   label: "Ponto de Equilíbrio",
   pick: (m) => m.pontoEquilibrio,
+  format: (v) => brl(v),
   atribuivel: true,
   sub: (m) => {
     if (m.pontoEquilibrio === null)
       return { texto: "Sem margem de contribuição positiva", positivo: null };
     const cobertura = m.pontoEquilibrio > 0 ? (m.faturamento / m.pontoEquilibrio) * 100 : null;
+    const unidades = m.pontoEquilibrioUnidades;
+    const texto =
+      unidades === null || unidades <= 0
+        ? `Faturamento cobre ${pct(cobertura)} do necessário`
+        : `Faturamento cobre ${pct(cobertura)} do necessário · equivale a ${num(unidades, 0)} vendas`;
     return {
-      texto: `Faturamento cobre ${pct(cobertura)} do necessário`,
+      texto,
       positivo: (cobertura ?? 0) >= 100,
     };
   },
