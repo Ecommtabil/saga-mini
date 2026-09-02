@@ -108,6 +108,26 @@ export function AnaliseProduto({
   const skus = Array.from(new Set(linhas.map((l) => l.sku))).sort();
   const idx = skuSel ? skus.indexOf(skuSel) : -1;
 
+  const semCusto = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const l of linhas) {
+      if (l.custo === null && !map.has(l.sku)) map.set(l.sku, l.produto);
+    }
+    return Array.from(map, ([sku, produto]) => ({ sku, produto }));
+  }, [linhas]);
+
+  const exportarSemCusto = async () => {
+    const XLSX = await import("xlsx");
+    const ws = XLSX.utils.aoa_to_sheet([
+      ["SKU", "DESCRIÇÃO DO ITEM", "CUSTO"],
+      ...semCusto.map((s) => [s.sku, s.produto, ""]),
+    ]);
+    ws["!cols"] = [{ wch: 20 }, { wch: 60 }, { wch: 14 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "SKUs sem custo");
+    XLSX.writeFile(wb, "skus-sem-custo.xlsx");
+  };
+
   const totais = filtradas.reduce(
     (acc, l) => ({
       unidades: acc.unidades + l.unidades,
@@ -214,6 +234,20 @@ export function AnaliseProduto({
             <option value="maior">Maior primeiro</option>
             <option value="menor">Menor primeiro</option>
           </select>
+        </div>
+        <div className="field">
+          <label>SKUs sem custo</label>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            <button
+              className={situacao === "nd" ? "active" : ""}
+              onClick={() => setSituacao(situacao === "nd" ? "" : "nd")}
+            >
+              Filtrar sem custo ({semCusto.length})
+            </button>
+            <button onClick={exportarSemCusto} disabled={!semCusto.length}>
+              ⬇ Exportar Excel
+            </button>
+          </div>
         </div>
         <div className="count">
           {filtradas.length} de {linhas.length} produtos
