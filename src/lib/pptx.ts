@@ -1,5 +1,5 @@
 import { DreModel, TOTAL, buildDre } from "./dre";
-import { brl, pct } from "./format";
+import { brl, num, pct } from "./format";
 
 const AZUL = "0D1B3E";
 const AZUL_CLARO = "29ABE2";
@@ -93,7 +93,7 @@ export async function exportarApresentacao(
       "Ponto de Equilíbrio",
       brl(m.pontoEquilibrio),
       m.pontoEquilibrio && m.pontoEquilibrio > 0
-        ? `Faturamento cobre ${pct((m.faturamento / m.pontoEquilibrio) * 100)}`
+        ? `Faturamento cobre ${pct((m.faturamento / m.pontoEquilibrio) * 100)} · ${num(m.pontoEquilibrioUnidades, 0)} vendas`
         : "Sem margem de contribuição positiva",
     ],
   ];
