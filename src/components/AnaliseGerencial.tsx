@@ -31,19 +31,17 @@ export function AnaliseGerencial({ model }: { model: DreModel }) {
   const [b, setB] = useState<keyof Metrics>("lucroLiquido");
 
   const serie = model.meses.map((mes) => model.metrics(mes));
-  const tesoura = model.meses
-    .map((mes, i) => {
-      if (i === 0) return null;
-      return {
-        mes: mesLabel(mes),
-        A: ah(serie[i]![a] as number | null, serie[i - 1]![a] as number | null),
-        B: ah(serie[i]![b] as number | null, serie[i - 1]![b] as number | null),
-      };
-    })
-    .filter(
-      (r): r is { mes: string; A: number | null; B: number | null } =>
-        r !== null && (r.A !== null || r.B !== null),
-    );
+  // Primeiro mês é a base (0%); os seguintes mostram a variação % vs. mês anterior.
+  const tesoura = model.meses.map((mes, i) => ({
+    mes: mesLabel(mes),
+    A: i === 0 ? 0 : (ah(serie[i]![a] as number | null, serie[i - 1]![a] as number | null) ?? 0),
+    B: i === 0 ? 0 : (ah(serie[i]![b] as number | null, serie[i - 1]![b] as number | null) ?? 0),
+  }));
+
+  const ultimo = tesoura[tesoura.length - 1];
+  const diferenca = ultimo ? (ultimo.A ?? 0) - (ultimo.B ?? 0) : 0;
+
+
 
 
   const marketplaces = model.marketplaces;
