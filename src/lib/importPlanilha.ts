@@ -142,15 +142,74 @@ export function converter(
   return { linhas: out, erros, semCusto };
 }
 
+/** Cabeçalho oficial do modelo (aba "Vendas Reorganizado"). */
+export const HEADER_MODELO = [
+  "Empresa",
+  "Data da Venda",
+  "Marketplace",
+  "Unidades",
+  "Receita por Produto",
+  "Custo",
+  "Tarifa de venda e impostos",
+  "Receita por envio",
+  "Tarifas de Envio",
+  "Cupom",
+  "Comissão Afiliado",
+  "Frete Entrega Direta",
+  "Total",
+  "SKU",
+  "Estado",
+  "Cancelamentos e Reembolsos",
+  "Produto",
+  "Fornecedor",
+] as const;
+
+const INSTRUCOES: string[] = [
+  "MODELO DE PREENCHIMENTO — VENDAS (MARKETPLACES) — MULTI-EMPRESA",
+  "",
+  "Preencha uma linha por venda na aba 'Vendas Reorganizado', com as colunas abaixo.",
+  "A coluna 'Total' é calculada automaticamente (não preencher).",
+  "",
+  "Empresa — nome da empresa/loja do grupo à qual esta venda pertence. Obrigatório em toda linha: é o que permite separar \"Consolidado\" de cada empresa nas abas DRE Gerencial, DRE Detalhado, Análise Gerencial, Análise por Produto e Simuladores.",
+  "Data da Venda — data da venda conforme exportado pelo marketplace (o mês/competência é derivado dela). Aceita também \"2026-01\" ou \"01/2026\".",
+  "Marketplace — canal de venda (Mercado Livre, Shopee, Amazon, Site próprio...).",
+  "Unidades — quantidade de unidades vendidas na linha.",
+  "Receita por Produto — valor bruto recebido pelo produto (positivo).",
+  "Custo — custo do produto vendido (positivo). Se ficar vazio, o produto aparece como \"Custo não cadastrado\" e a importação não é bloqueada.",
+  "Tarifa de venda e impostos — tarifas/comissão do marketplace (normalmente negativo).",
+  "Receita por envio — valor recebido do comprador pelo frete (positivo, ou zero).",
+  "Tarifas de Envio — custo do frete pago à transportadora (normalmente negativo).",
+  "Cupom — desconto de cupom aplicado na venda pelo marketplace (normalmente negativo, ou zero).",
+  "Comissão Afiliado — comissão de afiliado, ajustes e rebates referentes à venda.",
+  "Frete Entrega Direta — custo de frete em modalidades de entrega direta, quando informado separadamente.",
+  "Total — Receita por Produto + Tarifa de venda e impostos + Receita por envio + Tarifas de Envio + Cupom + Comissão Afiliado + Frete Entrega Direta + Cancelamentos e Reembolsos (fórmula).",
+  "SKU — código do produto, usado nas análises por produto.",
+  "Estado — UF de entrega do comprador (opcional).",
+  "Cancelamentos e Reembolsos — valor estornado ao comprador (normalmente negativo, ou zero).",
+  "Produto — nome/descrição do produto, exibido na Análise por Produto.",
+  "Fornecedor — fornecedor do produto, usado como filtro na Análise por Produto.",
+  "",
+  "Valores negativos de tarifas, cupons, fretes e cancelamentos são tratados automaticamente como despesa na DRE.",
+  "Importar um novo arquivo atualiza somente os meses presentes nele; os demais meses já salvos permanecem intactos.",
+];
+
 export function baixarModelo() {
-  const header = CAMPOS.map((c) => c.label);
   const exemplo = [
-    "2026-01", "GOLDSHOPP", "Mercado Livre", "SKU-001", "Fone Bluetooth XZ",
-    "Fornecedor A", 120, 24000, 9600, 3200, 1400, 900, 300, 150, 200, 500,
+    ["GOLDSHOPP", "05/01/2026", "Mercado Livre", 2, 480, -190, -68, 25, -32, -12, -5, 0, null, "SKU-001", "SP", 0, "Fone Bluetooth XZ", "Fornecedor A"],
+    ["STARSHOPP", "18/01/2026", "Shopee", 1, 150, -60, -21, 0, -14, -8, -3, -6, null, "SKU-002", "MG", 0, "Caixa de Som Mini", "Fornecedor B"],
   ];
-  const ws = XLSX.utils.aoa_to_sheet([header, exemplo]);
+  const ws = XLSX.utils.aoa_to_sheet([[...HEADER_MODELO], ...exemplo]);
+  // Coluna "Total" (M) como fórmula.
+  exemplo.forEach((_, i) => {
+    const r = i + 2;
+    ws[`M${r}`] = { t: "n", f: `E${r}+G${r}+H${r}+I${r}+J${r}+K${r}+L${r}+P${r}` };
+  });
+  ws["!cols"] = HEADER_MODELO.map((h) => ({ wch: Math.max(12, h.length + 2) }));
+  const wsInstr = XLSX.utils.aoa_to_sheet(INSTRUCOES.map((l) => [l]));
+  wsInstr["!cols"] = [{ wch: 140 }];
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Vendas");
+  XLSX.utils.book_append_sheet(wb, ws, "Vendas Reorganizado");
+  XLSX.utils.book_append_sheet(wb, wsInstr, "Instruções");
   XLSX.writeFile(wb, "modelo-vendas-dre.xlsx");
 }
 
