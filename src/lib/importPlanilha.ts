@@ -161,7 +161,10 @@ export function converter(
     if (custo === null) semCusto++;
     out.push({
       mes,
+      data_venda: normalizarData(get(row, "mes")),
+      estado: String(get(row, "estado") ?? "").trim() || null,
       empresa: String(get(row, "empresa") ?? "").trim() || "Empresa única",
+
       marketplace: String(get(row, "marketplace") ?? "").trim() || "N/D",
       sku,
       nome_produto: String(get(row, "nome_produto") ?? "").trim() || sku,
