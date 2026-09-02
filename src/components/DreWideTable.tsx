@@ -136,8 +136,8 @@ export function DreWideTable({ model, lines, nota }: Props) {
       <p className="table-note">
         Margem de Contribuição = Lucro Bruto − Despesas Variáveis (antes das
         despesas fixas). Margem de Contribuição % = (Margem de Contribuição ÷
-        Faturamento) × 100. Ponto de Equilíbrio = Despesas Fixas ÷ Margem de
-        Contribuição %; quando a margem de contribuição é ≤ 0 o equilíbrio não
+        Faturamento) × 100. Ponto de Equilíbrio = Despesas Fixas ÷ (Margem de
+        Contribuição % ÷ 100); quando a margem de contribuição é ≤ 0 o equilíbrio não
         é alcançável por volume e a célula mostra "N/D".
       </p>
     </>
