@@ -82,7 +82,7 @@ export async function fetchDataset(clienteId: string): Promise<Dataset> {
       aliquota_simples_padrao: Number(cli.data.aliquota_simples_padrao),
     },
     empresas: (emp.data ?? []) as Empresa[],
-    vendas: ((ven.data ?? []) as Venda[]).map((v) => ({
+    vendas: (ven as Venda[]).map((v) => ({
       ...v,
       unidades: Number(v.unidades),
       receita: Number(v.receita),
