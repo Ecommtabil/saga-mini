@@ -235,6 +235,20 @@ export function AnaliseProduto({
             <option value="menor">Menor primeiro</option>
           </select>
         </div>
+        <div className="field">
+          <label>SKUs sem custo</label>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            <button
+              className={situacao === "nd" ? "active" : ""}
+              onClick={() => setSituacao(situacao === "nd" ? "" : "nd")}
+            >
+              Filtrar sem custo ({semCusto.length})
+            </button>
+            <button onClick={exportarSemCusto} disabled={!semCusto.length}>
+              ⬇ Exportar Excel
+            </button>
+          </div>
+        </div>
         <div className="count">
           {filtradas.length} de {linhas.length} produtos
         </div>
