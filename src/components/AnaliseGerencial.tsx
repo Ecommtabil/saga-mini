@@ -88,46 +88,71 @@ export function AnaliseGerencial({ model }: { model: DreModel }) {
             </select>
           </div>
         </div>
-        <div className="chart-box">
-          <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={tesoura}>
-              <CartesianGrid stroke="#eaf1fb" />
-              <XAxis dataKey="mes" tick={{ fontSize: 12 }} />
-              <YAxis tickFormatter={(v) => `${v}%`} tick={{ fontSize: 12 }} />
-              <Tooltip formatter={(v) => pct(v as number)} />
-              <Legend
-                payload={[
-                  { value: labelDe(a), type: "line", id: "A", color: "#2e5eaa" },
-                  { value: labelDe(b), type: "line", id: "B", color: "#b8720a" },
-                ]}
-              />
+        {tesoura.length === 0 ? (
+          <p className="muted">
+            A variação mês a mês (AH) precisa de pelo menos duas competências com dados.
+            Importe outro mês para traçar as linhas do gráfico tesoura.
+          </p>
+        ) : (
+          <div className="chart-box">
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={tesoura}>
+                <CartesianGrid stroke="#eaf1fb" />
+                <XAxis dataKey="mes" tick={{ fontSize: 12 }} />
+                <YAxis
+                  tickFormatter={(v) => `${Math.round(v as number)}%`}
+                  tick={{ fontSize: 12 }}
+                  domain={["auto", "auto"]}
+                />
+                <Tooltip formatter={(v) => pct(v as number)} />
+                <Legend
+                  payload={[
+                    { value: labelDe(a), type: "line", id: "A", color: "#2e5eaa" },
+                    { value: labelDe(b), type: "line", id: "B", color: "#b8720a" },
+                  ]}
+                />
 
-              <Area
-                dataKey="A"
-                name={labelDe(a)}
-                stroke="none"
-                fill="#2e5eaa"
-                fillOpacity={0.14}
-                legendType="none"
-                tooltipType="none"
-                connectNulls
-              />
-              <Area
-                dataKey="B"
-                name={labelDe(b)}
-                stroke="none"
-                fill="#b8720a"
-                fillOpacity={0.14}
-                legendType="none"
-                tooltipType="none"
-                connectNulls
-              />
-              <Line dataKey="A" name={labelDe(a)} stroke="#2e5eaa" strokeWidth={2.5} dot />
-              <Line dataKey="B" name={labelDe(b)} stroke="#b8720a" strokeWidth={2.5} dot />
+                <Area
+                  dataKey="A"
+                  name={labelDe(a)}
+                  stroke="none"
+                  fill="#2e5eaa"
+                  fillOpacity={0.14}
+                  legendType="none"
+                  tooltipType="none"
+                  connectNulls
+                />
+                <Area
+                  dataKey="B"
+                  name={labelDe(b)}
+                  stroke="none"
+                  fill="#b8720a"
+                  fillOpacity={0.14}
+                  legendType="none"
+                  tooltipType="none"
+                  connectNulls
+                />
+                <Line
+                  dataKey="A"
+                  name={labelDe(a)}
+                  stroke="#2e5eaa"
+                  strokeWidth={2.5}
+                  dot
+                  connectNulls
+                />
+                <Line
+                  dataKey="B"
+                  name={labelDe(b)}
+                  stroke="#b8720a"
+                  strokeWidth={2.5}
+                  dot
+                  connectNulls
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+        )}
 
-            </ComposedChart>
-          </ResponsiveContainer>
-        </div>
       </section>
 
       <section className="panel bleed">
