@@ -21,6 +21,7 @@ export type Metrics = {
   despesasFixas: number | null;
   lucroLiquido: number | null;
   pontoEquilibrio: number | null;
+  pontoEquilibrioUnidades: number | null;
   margemBrutaPct: number | null;
   margemContribuicaoPct: number | null;
   margemLiquidaPct: number | null;
@@ -60,9 +61,13 @@ export function metricsFrom(
   const despesasFixas = opts.despesasFixas;
   const lucroLiquido =
     despesasFixas === null ? null : margemContribuicao - despesasFixas;
+  const unidades = s(rows, (r) => r.unidades);
   const mcRatio = faturamento > 0 ? margemContribuicao / faturamento : 0;
   const pontoEquilibrio =
     despesasFixas === null || mcRatio <= 0 ? null : despesasFixas / mcRatio;
+  const mcUnitaria = unidades > 0 ? margemContribuicao / unidades : 0;
+  const pontoEquilibrioUnidades =
+    despesasFixas === null || mcUnitaria <= 0 ? null : despesasFixas / mcUnitaria;
 
   return {
     faturamento,
@@ -83,13 +88,14 @@ export function metricsFrom(
     despesasFixas,
     lucroLiquido,
     pontoEquilibrio,
+    pontoEquilibrioUnidades,
     margemBrutaPct: faturamento > 0 ? (lucroBruto / faturamento) * 100 : null,
     margemContribuicaoPct: faturamento > 0 ? mcRatio * 100 : null,
     margemLiquidaPct:
       faturamento > 0 && lucroLiquido !== null
         ? (lucroLiquido / faturamento) * 100
         : null,
-    unidades: s(rows, (r) => r.unidades),
+    unidades,
     custosEDespesas: custo + despesasVariaveis + (despesasFixas ?? 0),
   };
 }
