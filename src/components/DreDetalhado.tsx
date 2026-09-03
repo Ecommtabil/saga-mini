@@ -2,7 +2,7 @@ import { useState } from "react";
 import { buildDre, type DreModel } from "@/lib/dre";
 import { DreWideTable } from "./DreWideTable";
 import { KpiCards, KPI_PONTO_EQUILIBRIO, type KpiDef } from "./KpiCards";
-import { pct } from "@/lib/format";
+import { brl, pct } from "@/lib/format";
 
 const KPIS_EMPRESA: KpiDef[] = [
   { label: "Faturamento", pick: (m) => m.faturamento },
@@ -23,8 +23,18 @@ const KPIS_EMPRESA: KpiDef[] = [
       positivo: (m.margemContribuicao ?? 0) >= 0,
     }),
   },
+  {
+    label: "Lucro Líquido da Loja",
+    pick: (m) => m.lucroLiquido,
+    atribuivel: true,
+    sub: (m) => ({
+      texto: `Margem líquida ${pct(m.margemLiquidaPct)}`,
+      positivo: (m.lucroLiquido ?? 0) >= 0,
+    }),
+  },
   KPI_PONTO_EQUILIBRIO,
 ];
+
 
 export function DreDetalhado({
   model,
