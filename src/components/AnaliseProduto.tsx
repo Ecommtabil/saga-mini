@@ -52,6 +52,8 @@ export function AnaliseProduto({
         v.cupom +
         v.comissao_afiliado +
         v.frete_entrega_direta;
+      // Alíquota do Simples da própria empresa naquele mês (cai para a geral).
+      const imposto = (v.receita * model.aliquota(v.mes, v.empresa_id)) / 100;
       const atual = map.get(key);
       if (!atual) {
         map.set(key, {
@@ -66,6 +68,7 @@ export function AnaliseProduto({
           receita: v.receita,
           custo: v.custo,
           despVar,
+          imposto,
           margem: 0,
           margemPct: null,
         });
@@ -77,10 +80,11 @@ export function AnaliseProduto({
             ? null
             : (atual.custo ?? 0) + (v.custo ?? 0);
         atual.despVar += despVar;
+        atual.imposto += imposto;
       }
     }
     return Array.from(map.values()).map((l) => {
-      const margem = l.receita - (l.custo ?? 0) - l.despVar;
+      const margem = l.receita - l.imposto - (l.custo ?? 0) - l.despVar;
       return {
         ...l,
         margem,
