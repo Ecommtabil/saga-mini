@@ -19,6 +19,8 @@ export function ParametrosModal({
   const meses = model.meses.length ? model.meses : [mesInicial];
   const [mes, setMes] = useState(meses.includes(mesInicial) ? mesInicial : meses[0]!);
   const [empresaId, setEmpresaId] = useState<string | "GRUPO">("GRUPO");
+  /** Escopo da alíquota: "GERAL" (todas) ou o id de uma empresa. */
+  const [aliqEscopo, setAliqEscopo] = useState<string>("GERAL");
   const [aliquota, setAliquota] = useState(String(model.aliquota(mes)));
   const [itens, setItens] = useState(
     model
@@ -58,10 +60,13 @@ export function ParametrosModal({
     }
   };
 
-  const recarregar = (novoMes: string, novaEmpresa: string) => {
+  const recarregar = (novoMes: string, novaEmpresa: string, escopo = aliqEscopo) => {
     setMes(novoMes);
     setEmpresaId(novaEmpresa as string);
-    setAliquota(String(model.aliquota(novoMes)));
+    setAliqEscopo(escopo);
+    setAliquota(
+      String(model.aliquota(novoMes, escopo === "GERAL" ? null : escopo)),
+    );
     setItens(
       model
         .fixasDoMes(novoMes, novaEmpresa === "GRUPO" ? null : novaEmpresa)
@@ -72,10 +77,21 @@ export function ParametrosModal({
     );
   };
 
+  const aliqPropria =
+    aliqEscopo !== "GERAL" &&
+    model.data.parametros.some(
+      (p) => p.mes === mes && p.empresa_id === aliqEscopo,
+    );
+
   const salvar = async () => {
     setSalvando(true);
     try {
-      await salvarAliquota(model.data.cliente.id, mes, Number(aliquota) || 0);
+      await salvarAliquota(
+        model.data.cliente.id,
+        mes,
+        Number(aliquota) || 0,
+        aliqEscopo === "GERAL" ? null : aliqEscopo,
+      );
       await salvarDespesasFixas(
         model.data.cliente.id,
         mes,
@@ -108,6 +124,22 @@ export function ParametrosModal({
             ))}
           </select>
         </div>
+        {model.data.empresas.length > 0 && (
+          <div className="field">
+            <label>Alíquota aplicada a</label>
+            <select
+              value={aliqEscopo}
+              onChange={(e) => recarregar(mes, empresaId, e.target.value)}
+            >
+              <option value="GERAL">Geral (todas as empresas)</option>
+              {model.data.empresas.map((e) => (
+                <option key={e.id} value={e.id}>
+                  {e.nome}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         <div className="field">
           <label>Alíquota do Simples Nacional (%)</label>
           <input
@@ -116,6 +148,14 @@ export function ParametrosModal({
             value={aliquota}
             onChange={(e) => setAliquota(e.target.value)}
           />
+          <p className="modal-note">
+            {aliqEscopo === "GERAL"
+              ? "Vale para todas as empresas que não tiverem alíquota própria neste mês."
+              : aliqPropria
+                ? "Alíquota própria desta empresa neste mês."
+                : "Esta empresa ainda usa a alíquota geral; salvar aqui cria a alíquota própria dela."}{" "}
+            Não afeta as despesas fixas nem os outros parâmetros.
+          </p>
         </div>
 
         <hr className="modal-sep" />

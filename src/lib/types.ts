@@ -39,6 +39,8 @@ export type DespesaFixa = {
 export type ParametroMensal = {
   id: string;
   cliente_id: string;
+  /** null = alíquota geral do mês; preenchido = alíquota daquela empresa. */
+  empresa_id: string | null;
   mes: string;
   aliquota_simples_pct: number;
 };

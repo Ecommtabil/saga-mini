@@ -117,6 +117,7 @@ export type Database = {
           aliquota_simples_pct: number
           cliente_id: string
           created_at: string
+          empresa_id: string | null
           id: string
           mes: string
         }
@@ -124,6 +125,7 @@ export type Database = {
           aliquota_simples_pct?: number
           cliente_id: string
           created_at?: string
+          empresa_id?: string | null
           id?: string
           mes: string
         }
@@ -131,6 +133,7 @@ export type Database = {
           aliquota_simples_pct?: number
           cliente_id?: string
           created_at?: string
+          empresa_id?: string | null
           id?: string
           mes?: string
         }
@@ -140,6 +143,13 @@ export type Database = {
             columns: ["cliente_id"]
             isOneToOne: false
             referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "parametros_mensais_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
             referencedColumns: ["id"]
           },
         ]
