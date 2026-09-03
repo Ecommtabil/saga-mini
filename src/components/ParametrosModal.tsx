@@ -19,6 +19,8 @@ export function ParametrosModal({
   const meses = model.meses.length ? model.meses : [mesInicial];
   const [mes, setMes] = useState(meses.includes(mesInicial) ? mesInicial : meses[0]!);
   const [empresaId, setEmpresaId] = useState<string | "GRUPO">("GRUPO");
+  /** Escopo da alíquota: "GERAL" (todas) ou o id de uma empresa. */
+  const [aliqEscopo, setAliqEscopo] = useState<string>("GERAL");
   const [aliquota, setAliquota] = useState(String(model.aliquota(mes)));
   const [itens, setItens] = useState(
     model
