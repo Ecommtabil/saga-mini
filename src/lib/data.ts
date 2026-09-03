@@ -192,13 +192,32 @@ export async function importarLinhas(clienteId: string, linhas: LinhaImportada[]
 }
 
 
-export async function salvarAliquota(clienteId: string, mes: string, pct: number) {
-  const { error } = await supabase
+/**
+ * Salva a alíquota do Simples do mês. `empresaId = null` grava a alíquota geral
+ * do cliente; com empresa, grava só a alíquota daquela empresa (não afeta as
+ * despesas fixas nem os demais parâmetros).
+ */
+export async function salvarAliquota(
+  clienteId: string,
+  mes: string,
+  pct: number,
+  empresaId: string | null = null,
+) {
+  let del = supabase
     .from("parametros_mensais")
-    .upsert(
-      { cliente_id: clienteId, mes, aliquota_simples_pct: pct },
-      { onConflict: "cliente_id,mes" },
-    );
+    .delete()
+    .eq("cliente_id", clienteId)
+    .eq("mes", mes);
+  del = empresaId ? del.eq("empresa_id", empresaId) : del.is("empresa_id", null);
+  const { error: eDel } = await del;
+  if (eDel) throw eDel;
+
+  const { error } = await supabase.from("parametros_mensais").insert({
+    cliente_id: clienteId,
+    empresa_id: empresaId,
+    mes,
+    aliquota_simples_pct: pct,
+  });
   if (error) throw error;
 }
 
