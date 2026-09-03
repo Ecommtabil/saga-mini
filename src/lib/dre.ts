@@ -337,7 +337,9 @@ export function buildDre(model: DreModel, opts: BuildOpts): DreLine[] {
       });
   lines.push({
     key: "DEDUCOES:imposto",
-    label: "Imposto Simples Nacional (não atribuível por loja/canal)",
+    label: filter.empresaId
+      ? "Imposto Simples Nacional (alíquota desta loja)"
+      : "Imposto Simples Nacional (não atribuível por canal)",
     kind: "analytic",
     parent: "DEDUCOES",
     values: val((m) => m.imposto, filter, true),

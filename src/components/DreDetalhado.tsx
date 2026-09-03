@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { buildDre, type DreModel } from "@/lib/dre";
+import { buildDre, TOTAL, type DreModel } from "@/lib/dre";
 import { DreWideTable } from "./DreWideTable";
 import { KpiCards, KPI_PONTO_EQUILIBRIO, type KpiDef } from "./KpiCards";
-import { brl, pct } from "@/lib/format";
+import { brl, mesLabel, num, pct } from "@/lib/format";
 
 const KPIS_EMPRESA: KpiDef[] = [
   { label: "Faturamento", pick: (m) => m.faturamento },
@@ -59,7 +59,7 @@ export function DreDetalhado({
     ? buildDre(model, {
         detalhe: "marketplace",
         filter: { empresaId: sel },
-        completo: false,
+        completo: true,
       })
     : buildDre(model, { detalhe: "empresa", completo: true });
 
@@ -81,13 +81,23 @@ export function DreDetalhado({
       </div>
 
       {sel ? (
-        <KpiCards
-          model={model}
-          periodo={periodo}
-          filter={{ empresaId: sel }}
-          atribuivel={false}
-          kpis={KPIS_EMPRESA}
-        />
+        <>
+          <KpiCards
+            model={model}
+            periodo={periodo}
+            filter={{ empresaId: sel }}
+            atribuivel={true}
+            kpis={KPIS_EMPRESA}
+          />
+          <p className="table-note">
+            Imposto Simples desta loja calculado com a alíquota parametrizada para
+            ela em cada mês
+            {periodo === TOTAL
+              ? ""
+              : ` (${num(model.aliquota(periodo, sel), 2)}% em ${mesLabel(periodo)})`}
+            ; sem alíquota própria, vale a alíquota geral do mês.
+          </p>
+        </>
       ) : (
         <KpiCards model={model} periodo={periodo} />
       )}

@@ -14,6 +14,8 @@ type Linha = {
   receita: number;
   custo: number | null;
   despVar: number;
+  /** Imposto Simples calculado com a alíquota da empresa em cada mês. */
+  imposto: number;
   margem: number;
   margemPct: number | null;
 };
@@ -50,6 +52,8 @@ export function AnaliseProduto({
         v.cupom +
         v.comissao_afiliado +
         v.frete_entrega_direta;
+      // Alíquota do Simples da própria empresa naquele mês (cai para a geral).
+      const imposto = (v.receita * model.aliquota(v.mes, v.empresa_id)) / 100;
       const atual = map.get(key);
       if (!atual) {
         map.set(key, {
@@ -64,6 +68,7 @@ export function AnaliseProduto({
           receita: v.receita,
           custo: v.custo,
           despVar,
+          imposto,
           margem: 0,
           margemPct: null,
         });
@@ -75,10 +80,11 @@ export function AnaliseProduto({
             ? null
             : (atual.custo ?? 0) + (v.custo ?? 0);
         atual.despVar += despVar;
+        atual.imposto += imposto;
       }
     }
     return Array.from(map.values()).map((l) => {
-      const margem = l.receita - (l.custo ?? 0) - l.despVar;
+      const margem = l.receita - l.imposto - (l.custo ?? 0) - l.despVar;
       return {
         ...l,
         margem,
@@ -267,6 +273,7 @@ export function AnaliseProduto({
               <th className="num">Receita</th>
               <th className="num">Custo</th>
               <th className="num">Desp. Variáveis</th>
+              <th className="num">Imposto Simples</th>
               <th className="num">Margem (R$)</th>
               <th className="num">Margem (%)</th>
               <th>Situação</th>
@@ -293,6 +300,7 @@ export function AnaliseProduto({
                     {l.custo === null ? <span className="na">N/D</span> : brl(l.custo)}
                   </td>
                   <td className="num">{brl(l.despVar)}</td>
+                  <td className="num">{brl(l.imposto)}</td>
                   <td className="num">{brl(l.margem)}</td>
                   <td className="num">
                     <span className="margin-cell">
