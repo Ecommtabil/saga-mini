@@ -17,9 +17,14 @@ export function DreWideTable({ model, lines, nota }: Props) {
 
   const faturamento = useMemo(() => {
     const map: Record<string, number> = {};
-    for (const p of periodos) map[p] = model.metrics(p).faturamento;
+    const linhaFat = lines.find((l) => l.key === "FATURAMENTO");
+    for (const p of periodos) {
+      const own = linhaFat?.values[p] ?? null;
+      map[p] = own !== null && own !== undefined ? own : model.metrics(p).faturamento;
+    }
     return map;
-  }, [model, periodos.join("|")]);
+  }, [model, lines, periodos.join("|")]);
+
 
   const toggle = (key: string) =>
     setColapsados((prev) => {
