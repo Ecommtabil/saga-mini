@@ -102,16 +102,6 @@ function Home() {
     }
   };
 
-  const remover = async (id: string, nomeCliente: string) => {
-    if (!confirm(`Excluir "${nomeCliente}" e todos os dados importados?`)) return;
-    try {
-      await deleteCliente(id);
-      await qc.invalidateQueries({ queryKey: ["clientes"] });
-      toast.success("Cliente excluído.");
-    } catch {
-      toast.error("Não foi possível excluir.");
-    }
-  };
 
   if (loading || !session) return null;
 
