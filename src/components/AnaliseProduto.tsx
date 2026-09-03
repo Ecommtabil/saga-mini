@@ -300,6 +300,7 @@ export function AnaliseProduto({
                     {l.custo === null ? <span className="na">N/D</span> : brl(l.custo)}
                   </td>
                   <td className="num">{brl(l.despVar)}</td>
+                  <td className="num">{brl(l.imposto)}</td>
                   <td className="num">{brl(l.margem)}</td>
                   <td className="num">
                     <span className="margin-cell">
