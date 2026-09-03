@@ -14,6 +14,8 @@ type Linha = {
   receita: number;
   custo: number | null;
   despVar: number;
+  /** Imposto Simples calculado com a alíquota da empresa em cada mês. */
+  imposto: number;
   margem: number;
   margemPct: number | null;
 };
