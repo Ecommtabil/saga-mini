@@ -125,9 +125,35 @@ export class DreModel {
     ).sort();
   }
 
-  aliquota(mes: string) {
-    const p = this.data.parametros.find((x) => x.mes === mes);
+  /**
+   * Alíquota do Simples do mês. Se a empresa tiver alíquota própria cadastrada,
+   * ela prevalece; senão usa a alíquota geral do mês; senão o padrão do cliente.
+   */
+  aliquota(mes: string, empresaId?: string | null) {
+    if (empresaId) {
+      const pe = this.data.parametros.find(
+        (x) => x.mes === mes && x.empresa_id === empresaId,
+      );
+      if (pe) return Number(pe.aliquota_simples_pct);
+    }
+    const p = this.data.parametros.find(
+      (x) => x.mes === mes && !x.empresa_id,
+    );
     return p ? Number(p.aliquota_simples_pct) : Number(this.data.cliente.aliquota_simples_padrao);
+  }
+
+  /** Imposto do mês somando cada empresa com sua própria alíquota. */
+  impostoDoMes(mes: string, filter: Filter = {}) {
+    const rows = this.vendasDoPeriodo(mes, filter);
+    const porEmpresa = new Map<string, number>();
+    for (const r of rows) {
+      porEmpresa.set(r.empresa_id, (porEmpresa.get(r.empresa_id) ?? 0) + Number(r.receita || 0));
+    }
+    let total = 0;
+    for (const [empresaId, receita] of porEmpresa) {
+      total += (receita * this.aliquota(mes, empresaId)) / 100;
+    }
+    return total;
   }
 
   fixasDoMes(mes: string, empresaId?: string | null) {
@@ -155,22 +181,15 @@ export class DreModel {
       const rows = this.vendasDoPeriodo(periodo, filter);
       return metricsFrom(rows, { aliquotaPct: null, despesasFixas: null });
     }
-    // Soma mês a mês para respeitar alíquotas mensais distintas.
-    const parts = meses.map((mes) => {
-      const rows = this.vendasDoPeriodo(mes, filter);
-      const fixas = this.fixasDoMes(mes, filter.empresaId).reduce(
-        (a, f) => a + Number(f.valor),
-        0,
-      );
-      return metricsFrom(rows, {
-        aliquotaPct: this.aliquota(mes),
-        despesasFixas: fixas,
-      });
-    });
-    if (parts.length === 1) return parts[0]!;
+    // Soma mês a mês, com a alíquota de cada empresa em cada mês.
+    const impostoTotal = meses.reduce((a, mes) => a + this.impostoDoMes(mes, filter), 0);
+    const fixasTotal = meses.reduce(
+      (a, mes) =>
+        a +
+        this.fixasDoMes(mes, filter.empresaId).reduce((b, f) => b + Number(f.valor), 0),
+      0,
+    );
     const rows = this.vendasDoPeriodo(periodo, filter);
-    const impostoTotal = parts.reduce((a, p) => a + (p.imposto ?? 0), 0);
-    const fixasTotal = parts.reduce((a, p) => a + (p.despesasFixas ?? 0), 0);
     const base = metricsFrom(rows, { aliquotaPct: 0, despesasFixas: 0 });
     return recompose(base, impostoTotal, fixasTotal);
   }
