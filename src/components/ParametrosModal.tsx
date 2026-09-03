@@ -124,6 +124,22 @@ export function ParametrosModal({
             ))}
           </select>
         </div>
+        {model.data.empresas.length > 0 && (
+          <div className="field">
+            <label>Alíquota aplicada a</label>
+            <select
+              value={aliqEscopo}
+              onChange={(e) => recarregar(mes, empresaId, e.target.value)}
+            >
+              <option value="GERAL">Geral (todas as empresas)</option>
+              {model.data.empresas.map((e) => (
+                <option key={e.id} value={e.id}>
+                  {e.nome}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         <div className="field">
           <label>Alíquota do Simples Nacional (%)</label>
           <input
@@ -132,6 +148,14 @@ export function ParametrosModal({
             value={aliquota}
             onChange={(e) => setAliquota(e.target.value)}
           />
+          <p className="modal-note">
+            {aliqEscopo === "GERAL"
+              ? "Vale para todas as empresas que não tiverem alíquota própria neste mês."
+              : aliqPropria
+                ? "Alíquota própria desta empresa neste mês."
+                : "Esta empresa ainda usa a alíquota geral; salvar aqui cria a alíquota própria dela."}{" "}
+            Não afeta as despesas fixas nem os outros parâmetros.
+          </p>
         </div>
 
         <hr className="modal-sep" />
