@@ -1,0 +1,1 @@
+ALTER TABLE public.parametros_mensais DROP CONSTRAINT IF EXISTS parametros_mensais_cliente_id_mes_key;
