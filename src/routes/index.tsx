@@ -44,6 +44,9 @@ function Home() {
   const qc = useQueryClient();
   const [nome, setNome] = useState("");
   const [aliquota, setAliquota] = useState("8");
+  const [clienteParaExcluir, setClienteParaExcluir] = useState<{ id: string; nome: string } | null>(null);
+  const [confirmacao, setConfirmacao] = useState("");
+  const [excluindo, setExcluindo] = useState(false);
 
   useEffect(() => {
     if (!loading && !session) void navigate({ to: "/auth" });
@@ -54,6 +57,37 @@ function Home() {
     queryFn: listClientes,
     enabled: !!session,
   });
+
+  const abrirConfirmacao = (id: string, nomeCliente: string) => {
+    setClienteParaExcluir({ id, nome: nomeCliente });
+    setConfirmacao("");
+  };
+
+  const fecharConfirmacao = () => {
+    setClienteParaExcluir(null);
+    setConfirmacao("");
+    setExcluindo(false);
+  };
+
+  const executarExclusao = async () => {
+    if (!clienteParaExcluir) return;
+    if (confirmacao.trim() !== clienteParaExcluir.nome.trim()) {
+      toast.error("Digite o nome exato do cliente para confirmar.");
+      return;
+    }
+    setExcluindo(true);
+    try {
+      await deleteCliente(clienteParaExcluir.id);
+      await qc.invalidateQueries({ queryKey: ["clientes"] });
+      toast.success("Cliente excluído.");
+      fecharConfirmacao();
+    } catch {
+      toast.error("Não foi possível excluir.");
+    } finally {
+      setExcluindo(false);
+    }
+  };
+
 
   const criar = async (e: React.FormEvent) => {
     e.preventDefault();
