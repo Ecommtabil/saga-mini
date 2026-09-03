@@ -59,7 +59,7 @@ export function DreDetalhado({
     ? buildDre(model, {
         detalhe: "marketplace",
         filter: { empresaId: sel },
-        completo: false,
+        completo: true,
       })
     : buildDre(model, { detalhe: "empresa", completo: true });
 
