@@ -273,6 +273,7 @@ export function AnaliseProduto({
               <th className="num">Receita</th>
               <th className="num">Custo</th>
               <th className="num">Desp. Variáveis</th>
+              <th className="num">Imposto Simples</th>
               <th className="num">Margem (R$)</th>
               <th className="num">Margem (%)</th>
               <th>Situação</th>
