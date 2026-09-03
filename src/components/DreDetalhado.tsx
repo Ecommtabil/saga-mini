@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { buildDre, type DreModel } from "@/lib/dre";
+import { buildDre, TOTAL, type DreModel } from "@/lib/dre";
 import { DreWideTable } from "./DreWideTable";
 import { KpiCards, KPI_PONTO_EQUILIBRIO, type KpiDef } from "./KpiCards";
-import { brl, pct } from "@/lib/format";
+import { brl, mesLabel, num, pct } from "@/lib/format";
 
 const KPIS_EMPRESA: KpiDef[] = [
   { label: "Faturamento", pick: (m) => m.faturamento },
