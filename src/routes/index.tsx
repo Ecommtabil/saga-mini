@@ -136,7 +136,10 @@ function Home() {
                     <strong>{c.nome}</strong>
                     <span>Alíquota padrão {c.aliquota_simples_padrao}%</span>
                   </Link>
-                  <button className="btn ghost sm" onClick={() => void remover(c.id, c.nome)}>
+                  <button
+                    className="btn ghost sm"
+                    onClick={() => abrirConfirmacao(c.id, c.nome)}
+                  >
                     Excluir
                   </button>
                 </div>
