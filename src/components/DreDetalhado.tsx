@@ -2,7 +2,7 @@ import { useState } from "react";
 import { buildDre, type DreModel } from "@/lib/dre";
 import { DreWideTable } from "./DreWideTable";
 import { KpiCards, KPI_PONTO_EQUILIBRIO, type KpiDef } from "./KpiCards";
-import { pct } from "@/lib/format";
+import { brl, pct } from "@/lib/format";
 
 const KPIS_EMPRESA: KpiDef[] = [
   { label: "Faturamento", pick: (m) => m.faturamento },
@@ -23,8 +23,18 @@ const KPIS_EMPRESA: KpiDef[] = [
       positivo: (m.margemContribuicao ?? 0) >= 0,
     }),
   },
+  {
+    label: "Lucro Líquido da Loja",
+    pick: (m) => m.lucroLiquido,
+    atribuivel: true,
+    sub: (m) => ({
+      texto: `Margem líquida ${pct(m.margemLiquidaPct)}`,
+      positivo: (m.lucroLiquido ?? 0) >= 0,
+    }),
+  },
   KPI_PONTO_EQUILIBRIO,
 ];
+
 
 export function DreDetalhado({
   model,
@@ -81,6 +91,40 @@ export function DreDetalhado({
       ) : (
         <KpiCards model={model} periodo={periodo} />
       )}
+
+      {!sel && model.data.empresas.length >= 2 && (
+        <section className="panel">
+          <h2>Lucro Líquido por Loja</h2>
+          <div
+            className={`kpi-grid${model.data.empresas.length === 4 ? " cols-4" : model.data.empresas.length >= 6 ? " cols-6" : ""}`}
+          >
+            {model.data.empresas.map((e) => {
+              const m = model.metrics(periodo, { empresaId: e.id }, true);
+              return (
+                <div className="kpi-card" key={e.id}>
+                  <div className="label">{e.nome}</div>
+                  <div className="value">{brl(m.lucroLiquido)}</div>
+                  <div
+                    className={`sub ${(m.lucroLiquido ?? 0) >= 0 ? "pos" : "neg"}`}
+                  >
+                    Margem líquida {pct(m.margemLiquidaPct)}
+                  </div>
+                  <div className="sub na">
+                    Faturamento {brl(m.faturamento)} · Fixas {brl(m.despesasFixas)}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <p className="table-note">
+            Lucro líquido por loja considera o Imposto Simples Nacional rateado
+            pela receita da própria loja e apenas as despesas fixas cadastradas
+            para ela. Despesas fixas lançadas sem empresa (rateio do grupo) não
+            entram nestes cartões.
+          </p>
+        </section>
+      )}
+
 
       <section className="panel bleed">
         <h2>
