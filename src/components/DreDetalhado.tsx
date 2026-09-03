@@ -81,13 +81,23 @@ export function DreDetalhado({
       </div>
 
       {sel ? (
-        <KpiCards
-          model={model}
-          periodo={periodo}
-          filter={{ empresaId: sel }}
-          atribuivel={false}
-          kpis={KPIS_EMPRESA}
-        />
+        <>
+          <KpiCards
+            model={model}
+            periodo={periodo}
+            filter={{ empresaId: sel }}
+            atribuivel={true}
+            kpis={KPIS_EMPRESA}
+          />
+          <p className="table-note">
+            Imposto Simples desta loja calculado com a alíquota parametrizada para
+            ela em cada mês
+            {periodo === TOTAL
+              ? ""
+              : ` (${num(model.aliquota(periodo, sel), 2)}% em ${mesLabel(periodo)})`}
+            ; sem alíquota própria, vale a alíquota geral do mês.
+          </p>
+        </>
       ) : (
         <KpiCards model={model} periodo={periodo} />
       )}
