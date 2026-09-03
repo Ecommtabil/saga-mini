@@ -60,10 +60,13 @@ export function ParametrosModal({
     }
   };
 
-  const recarregar = (novoMes: string, novaEmpresa: string) => {
+  const recarregar = (novoMes: string, novaEmpresa: string, escopo = aliqEscopo) => {
     setMes(novoMes);
     setEmpresaId(novaEmpresa as string);
-    setAliquota(String(model.aliquota(novoMes)));
+    setAliqEscopo(escopo);
+    setAliquota(
+      String(model.aliquota(novoMes, escopo === "GERAL" ? null : escopo)),
+    );
     setItens(
       model
         .fixasDoMes(novoMes, novaEmpresa === "GRUPO" ? null : novaEmpresa)
@@ -74,10 +77,21 @@ export function ParametrosModal({
     );
   };
 
+  const aliqPropria =
+    aliqEscopo !== "GERAL" &&
+    model.data.parametros.some(
+      (p) => p.mes === mes && p.empresa_id === aliqEscopo,
+    );
+
   const salvar = async () => {
     setSalvando(true);
     try {
-      await salvarAliquota(model.data.cliente.id, mes, Number(aliquota) || 0);
+      await salvarAliquota(
+        model.data.cliente.id,
+        mes,
+        Number(aliquota) || 0,
+        aliqEscopo === "GERAL" ? null : aliqEscopo,
+      );
       await salvarDespesasFixas(
         model.data.cliente.id,
         mes,
