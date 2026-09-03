@@ -170,6 +170,51 @@ function Home() {
           </form>
         </section>
       </div>
+
+      <AlertDialog open={!!clienteParaExcluir} onOpenChange={(open) => !open && fecharConfirmacao()}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir cliente?</AlertDialogTitle>
+            <AlertDialogDescription>
+              A exclusão de <strong>{clienteParaExcluir?.nome}</strong> remove permanentemente todos os dados importados (vendas, despesas e parâmetros). Essa ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-2">
+            <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Digite o nome do cliente para confirmar
+            </label>
+            <input
+              type="text"
+              value={confirmacao}
+              onChange={(e) => setConfirmacao(e.target.value)}
+              placeholder={clienteParaExcluir?.nome}
+              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  void executarExclusao();
+                }
+              }}
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel asChild>
+              <Button variant="outline" onClick={fecharConfirmacao} disabled={excluindo}>
+                Cancelar
+              </Button>
+            </AlertDialogCancel>
+            <AlertDialogAction asChild>
+              <Button
+                variant="destructive"
+                onClick={() => void executarExclusao()}
+                disabled={excluindo || confirmacao.trim() !== clienteParaExcluir?.nome.trim()}
+              >
+                {excluindo ? "Excluindo…" : "Sim, excluir cliente"}
+              </Button>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
