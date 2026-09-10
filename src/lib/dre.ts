@@ -392,15 +392,21 @@ export function buildDre(model: DreModel, opts: BuildOpts): DreLine[] {
 
   if (opts.completo) {
     add("DESP_FIXAS", "(-) DESPESAS FIXAS", "synth", (m) => m.despesasFixas);
-    const nomes = Array.from(new Set(model.data.fixas.map((f) => f.nome)));
+    // Respeita o escopo: com empresa selecionada, só as despesas fixas dela.
+    const fixasEscopo = model.data.fixas.filter(
+      (f) => !filter.empresaId || f.empresa_id === filter.empresaId,
+    );
+    const nomes = Array.from(new Set(fixasEscopo.map((f) => f.nome)));
     for (const nome of nomes) {
       const values: Record<string, number | null> = {};
       for (const p of periodos) {
         const meses = p === TOTAL ? model.meses : [p];
-        values[p] = model.data.fixas
+        values[p] = fixasEscopo
           .filter((f) => f.nome === nome && meses.includes(f.mes))
           .reduce((a, f) => a + Number(f.valor), 0);
       }
+      // Despesa excluída/zerada em todos os períodos não aparece na DRE.
+      if (Object.values(values).every((v) => !v)) continue;
       lines.push({
         key: `DESP_FIXAS:${nome}`,
         label: nome,
@@ -409,6 +415,7 @@ export function buildDre(model: DreModel, opts: BuildOpts): DreLine[] {
         values,
       });
     }
+
 
     add(
       "LUCRO_LIQUIDO",
