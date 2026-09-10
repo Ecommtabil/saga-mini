@@ -25,8 +25,10 @@ export function ParametrosModal({
   const [itens, setItens] = useState(
     model
       .fixasDoMes(mes, null)
+      .filter((f) => f.empresa_id === null)
       .map((f) => ({ nome: f.nome, valor: String(f.valor) })),
   );
+
   const [salvando, setSalvando] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
