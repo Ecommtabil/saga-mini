@@ -200,9 +200,9 @@ function ClientePage() {
           model={model}
           mesInicial={periodo === TOTAL ? (model.meses[model.meses.length - 1] ?? "") : periodo}
           onClose={() => setParametros(false)}
-          onSalvo={() => {
+          onSalvo={async () => {
             setParametros(false);
-            void refetch();
+            await refetch();
           }}
         />
       )}
