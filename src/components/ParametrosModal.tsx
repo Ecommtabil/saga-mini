@@ -14,7 +14,7 @@ export function ParametrosModal({
   model: DreModel;
   mesInicial: string;
   onClose: () => void;
-  onSalvo: () => void;
+  onSalvo: () => void | Promise<unknown>;
 }) {
   const meses = model.meses.length ? model.meses : [mesInicial];
   const [mes, setMes] = useState(meses.includes(mesInicial) ? mesInicial : meses[0]!);
@@ -107,7 +107,7 @@ export function ParametrosModal({
         itens.map((i) => ({ nome: i.nome, valor: Number(i.valor) || 0 })),
       );
       toast.success(`Parâmetros de ${mesLabel(mes)} salvos.`);
-      onSalvo();
+      await onSalvo();
       onClose();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Falha ao salvar.");

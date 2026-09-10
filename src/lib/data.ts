@@ -236,7 +236,8 @@ export async function salvarDespesasFixas(
   const { error: e1 } = await del;
   if (e1) throw e1;
   const rows = itens
-    .filter((i) => i.nome.trim())
+    // Campo vazio ou valor zero representam exclusão e não devem ser recriados.
+    .filter((i) => i.nome.trim() && Number.isFinite(i.valor) && Math.abs(i.valor) > 0.000001)
     .map((i) => ({
       cliente_id: clienteId,
       mes,
