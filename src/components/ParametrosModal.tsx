@@ -86,8 +86,14 @@ export function ParametrosModal({
     );
 
   const salvar = async () => {
+    if (!mes) {
+      toast.error("Selecione a competência (mês) antes de salvar.");
+      return;
+    }
     setSalvando(true);
     try {
+
+
       await salvarAliquota(
         model.data.cliente.id,
         mes,
