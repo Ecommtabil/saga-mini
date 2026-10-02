@@ -91,7 +91,7 @@ export async function fetchDataset(clienteId: string): Promise<Dataset> {
         ...v,
         unidades: z(v.unidades),
         receita: z(v.receita),
-        custo: cancelada ? (v.custo === null ? null : 0) : numeric(v.custo),
+        custo: cancelada ? 0 : numeric(v.custo),
         tarifa_venda: z(v.tarifa_venda),
         tarifa_envio: z(v.tarifa_envio),
         receita_envio: z(v.receita_envio),
