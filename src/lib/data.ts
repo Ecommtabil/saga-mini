@@ -82,19 +82,25 @@ export async function fetchDataset(clienteId: string): Promise<Dataset> {
       aliquota_simples_padrao: Number(cli.data.aliquota_simples_padrao),
     },
     empresas: (emp.data ?? []) as Empresa[],
-    vendas: (ven as Venda[]).map((v) => ({
-      ...v,
-      unidades: Number(v.unidades),
-      receita: Number(v.receita),
-      custo: numeric(v.custo),
-      tarifa_venda: Number(v.tarifa_venda),
-      tarifa_envio: Number(v.tarifa_envio),
-      receita_envio: Number(v.receita_envio),
-      cupom: Number(v.cupom),
-      comissao_afiliado: Number(v.comissao_afiliado),
-      frete_entrega_direta: Number(v.frete_entrega_direta),
-      cancelamentos: Number(v.cancelamentos),
-    })),
+    // Venda cancelada (com valor de cancelamento/reembolso) é zerada por
+    // completo: não entra receita, custo, tarifas, fretes, cupom nem comissão.
+    vendas: (ven as Venda[]).map((v) => {
+      const cancelada = Math.abs(Number(v.cancelamentos) || 0) > 0.000001;
+      const z = (x: unknown) => (cancelada ? 0 : Number(x));
+      return {
+        ...v,
+        unidades: z(v.unidades),
+        receita: z(v.receita),
+        custo: cancelada ? (v.custo === null ? null : 0) : numeric(v.custo),
+        tarifa_venda: z(v.tarifa_venda),
+        tarifa_envio: z(v.tarifa_envio),
+        receita_envio: z(v.receita_envio),
+        cupom: z(v.cupom),
+        comissao_afiliado: z(v.comissao_afiliado),
+        frete_entrega_direta: z(v.frete_entrega_direta),
+        cancelamentos: 0,
+      };
+    }),
     fixas: ((fix.data ?? []) as DespesaFixa[]).map((f) => ({
       ...f,
       valor: Number(f.valor),
