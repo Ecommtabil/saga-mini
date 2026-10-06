@@ -139,10 +139,11 @@ function Home() {
                     <span>Alíquota padrão {c.aliquota_simples_padrao}%</span>
                   </Link>
                   <button
-                    className="btn ghost sm"
+                    className="btn danger sm client-delete-btn"
                     onClick={() => abrirConfirmacao(c.id, c.nome)}
+                    title={`Excluir ${c.nome}`}
                   >
-                    Excluir
+                    🗑 Excluir
                   </button>
                 </div>
               ))}
