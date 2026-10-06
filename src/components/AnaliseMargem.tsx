@@ -39,7 +39,13 @@ export function AnaliseMargem({ model, base, atual, empresaId, mk }: {
         <thead><tr><th>Composição</th><th className="num">Impacto no resultado</th></tr></thead>
         <tbody>
           <tr><td>{titulo} — {mesLabel(base)}</td><td className="num">{saldo(r.lucro0)}</td></tr>
-          {r.efeitos.filter(([, v]) => Math.abs(v) > 0.000001).map(([nome, v]) => <tr key={nome}><td>{nome}</td><td className="num">{saldo(v)}</td></tr>)}
+          {efeitosAtivos.map(([nome, v]) => {
+            const destaque = maior !== null && nome === maior[0];
+            return <tr key={nome} className={destaque ? "row-destaque" : undefined}>
+              <td>{destaque && <span className="destaque-badge" aria-hidden>★</span>} {nome}{destaque ? " — maior impacto" : ""}</td>
+              <td className="num">{saldo(v)}</td>
+            </tr>;
+          })}
           <tr><td><strong>{titulo} — {mesLabel(atual)}</strong></td><td className="num"><strong>{saldo(r.lucro1)}</strong></td></tr>
         </tbody>
       </table>
