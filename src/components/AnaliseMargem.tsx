@@ -2,6 +2,7 @@ import type { DreModel } from "@/lib/dre";
 import { brl, mesLabel, num, pct } from "@/lib/format";
 import { profitAnalysis } from "@/lib/profit-analysis";
 
+
 export function AnaliseMargem({ model, base, atual, empresaId, mk }: {
   model: DreModel; base: string; atual: string; empresaId: string; mk: string;
 }) {
@@ -9,6 +10,10 @@ export function AnaliseMargem({ model, base, atual, empresaId, mk }: {
   const titulo = r.liquida ? "Lucro líquido" : "Margem de contribuição";
   const delta = r.lucro0 !== null && r.lucro1 !== null ? r.lucro1 - r.lucro0 : null;
   const pp = r.margem0 !== null && r.margem1 !== null ? r.margem1 - r.margem0 : null;
+  const efeitosAtivos = r.efeitos.filter(([, v]) => Math.abs(v) > 0.000001);
+  const maior = efeitosAtivos.length
+    ? efeitosAtivos.reduce((m, e) => (Math.abs(e[1]) > Math.abs(m[1]) ? e : m))
+    : null;
   const saldo = (v: number | null) => <span className={v === null ? "na" : v >= 0 ? "ah-pos" : "ah-neg"}>{brl(v)}</span>;
   return <section className="panel bleed">
     <h2>O que explica a margem de lucro?</h2>
@@ -34,11 +39,18 @@ export function AnaliseMargem({ model, base, atual, empresaId, mk }: {
         <thead><tr><th>Composição</th><th className="num">Impacto no resultado</th></tr></thead>
         <tbody>
           <tr><td>{titulo} — {mesLabel(base)}</td><td className="num">{saldo(r.lucro0)}</td></tr>
-          {r.efeitos.filter(([, v]) => Math.abs(v) > 0.000001).map(([nome, v]) => <tr key={nome}><td>{nome}</td><td className="num">{saldo(v)}</td></tr>)}
+          {efeitosAtivos.map(([nome, v]) => {
+            const destaque = maior !== null && nome === maior[0];
+            return <tr key={nome} className={destaque ? "row-destaque" : undefined}>
+              <td>{destaque && <span className="destaque-badge" aria-hidden>★</span>} {nome}{destaque ? " — maior impacto" : ""}</td>
+              <td className="num">{saldo(v)}</td>
+            </tr>;
+          })}
           <tr><td><strong>{titulo} — {mesLabel(atual)}</strong></td><td className="num"><strong>{saldo(r.lucro1)}</strong></td></tr>
         </tbody>
       </table>
     </div>
+    {maior && <p className="table-note destaque-note"><strong>Item mais relevante:</strong> {maior[0]}, com impacto de {brl(Math.abs(maior[1]))} {maior[1] >= 0 ? "a favor do resultado" : "contra o resultado"} entre {mesLabel(base)} e {mesLabel(atual)} — foi o que mais moveu a margem no período.</p>}
     <p className="table-note">Preço, volume e mix explicam a mudança do faturamento acima. Para chegar ao lucro, também entram as mudanças nos custos, no Simples e nas despesas. Aumento de despesa reduz o resultado; redução de despesa aumenta o resultado. A margem percentual é o resultado dividido pelo faturamento × 100: vender mais não garante uma margem maior.</p>
     <p className="table-note">{r.liquida ? "Lucro líquido = Faturamento − Simples − Custo dos produtos − Despesas variáveis − Despesas fixas. Na seleção de empresa, entram apenas as despesas fixas vinculadas à própria loja; no consolidado, entram também as do grupo." : "Por marketplace, a análise mostra a contribuição após o Simples, sem despesas fixas: elas não são atribuídas por canal e não são rateadas aqui."} O Simples usa a alíquota parametrizada de cada empresa em cada mês.</p>
     {r.semCusto > 0 && <p className="table-note ah-neg">Atenção: {num(r.semCusto)} linhas de vendas sem custo cadastrado nos meses selecionados. Seus custos estão ausentes do cálculo; lucro e margem podem estar superestimados.</p>}
