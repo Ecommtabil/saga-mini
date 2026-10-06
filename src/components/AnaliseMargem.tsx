@@ -2,6 +2,7 @@ import type { DreModel } from "@/lib/dre";
 import { brl, mesLabel, num, pct } from "@/lib/format";
 import { profitAnalysis } from "@/lib/profit-analysis";
 
+
 export function AnaliseMargem({ model, base, atual, empresaId, mk }: {
   model: DreModel; base: string; atual: string; empresaId: string; mk: string;
 }) {
