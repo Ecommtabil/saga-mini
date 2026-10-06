@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { DreModel } from "@/lib/dre";
 import { brl, mesLabel, num, pct } from "@/lib/format";
+import { AnaliseMargem } from "./AnaliseMargem";
 
 type Agg = { q: number; r: number; nome: string };
 
@@ -30,18 +31,19 @@ export function AnalisePVM({ model }: { model: DreModel }) {
     const a = agrupar(model, atual, empresaId, mk);
     // Mix e volume calculados sobre SKUs presentes nos dois meses.
     const comuns = [...a.keys()].filter((k) => (b.get(k)?.q ?? 0) > 0 && (a.get(k)?.q ?? 0) > 0);
-    const q0c = comuns.reduce((s, k) => s + b.get(k)!.q, 0);
-    const q1c = comuns.reduce((s, k) => s + a.get(k)!.q, 0);
+    const q0c = comuns.reduce((s, k) => s + (b.get(k)?.q ?? 0), 0);
+    const q1c = comuns.reduce((s, k) => s + (a.get(k)?.q ?? 0), 0);
     let volume = 0, mix = 0, preco = 0;
-    const linhas = comuns.map((k) => {
-      const x0 = b.get(k)!, x1 = a.get(k)!;
+    const linhas = comuns.flatMap((k) => {
+      const x0 = b.get(k), x1 = a.get(k);
+      if (!x0 || !x1) return [];
       const p0 = x0.r / x0.q, p1 = x1.r / x1.q;
       const mix0 = q0c ? x0.q / q0c : 0;
       const ev = (q1c * mix0 - x0.q) * p0;
       const em = (x1.q - q1c * mix0) * p0;
       const ep = (p1 - p0) * x1.q;
       volume += ev; mix += em; preco += ep;
-      return { sku: k, nome: x1.nome, q0: x0.q, q1: x1.q, p0, p1, ev, em, ep, total: x1.r - x0.r };
+      return [{ sku: k, nome: x1.nome, q0: x0.q, q1: x1.q, p0, p1, ev, em, ep, total: x1.r - x0.r }];
     });
     let novos = 0, perdidos = 0;
     for (const [k, x] of a) if (!((b.get(k)?.q ?? 0) > 0 && x.q > 0)) novos += x.r;
@@ -70,7 +72,7 @@ export function AnalisePVM({ model }: { model: DreModel }) {
     }),
     { nome: `Receita ${mesLabel(atual)}`, faixa: [0, r.r1], v: r.r1, tipo: "total" },
   ];
-  const cor = (t: string) => (t === "total" ? "#2e5eaa" : t === "pos" ? "#1e7e34" : "#c00000");
+  const cor = (t: string) => (t === "total" ? "var(--blue-med)" : t === "pos" ? "var(--green)" : "var(--red)");
   const sel = (v: number) => <span className={v >= 0 ? "ah-pos" : "ah-neg"}>{brl(v)}</span>;
 
   return (
@@ -80,26 +82,26 @@ export function AnalisePVM({ model }: { model: DreModel }) {
         <div className="filters">
           <div className="field">
             <label>Mês base</label>
-            <select value={base} onChange={(e) => setBase(e.target.value)}>
+            <select aria-label="Mês base" value={base} onChange={(e) => setBase(e.target.value)}>
               {meses.map((m) => <option key={m} value={m}>{mesLabel(m)}</option>)}
             </select>
           </div>
           <div className="field">
             <label>Mês comparado</label>
-            <select value={atual} onChange={(e) => setAtual(e.target.value)}>
+            <select aria-label="Mês comparado" value={atual} onChange={(e) => setAtual(e.target.value)}>
               {meses.map((m) => <option key={m} value={m}>{mesLabel(m)}</option>)}
             </select>
           </div>
           <div className="field">
             <label>Empresa</label>
-            <select value={empresaId} onChange={(e) => setEmpresaId(e.target.value)}>
+            <select aria-label="Empresa" value={empresaId} onChange={(e) => setEmpresaId(e.target.value)}>
               <option value="">Consolidado</option>
               {model.data.empresas.map((e) => <option key={e.id} value={e.id}>{e.nome}</option>)}
             </select>
           </div>
           <div className="field">
             <label>Marketplace</label>
-            <select value={mk} onChange={(e) => setMk(e.target.value)}>
+            <select aria-label="Marketplace" value={mk} onChange={(e) => setMk(e.target.value)}>
               <option value="">Todos</option>
               {model.marketplaces.map((m) => <option key={m} value={m}>{m}</option>)}
             </select>
@@ -134,7 +136,7 @@ export function AnalisePVM({ model }: { model: DreModel }) {
         <div className="chart-box">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={cascata} margin={{ top: 16, right: 24, bottom: 8, left: 24 }}>
-              <CartesianGrid stroke="#eaf1fb" />
+              <CartesianGrid stroke="var(--blue-pale)" />
               <XAxis dataKey="nome" tick={{ fontSize: 12 }} />
               <YAxis tickFormatter={(v) => brl(v as number).replace(",00", "")} tick={{ fontSize: 11 }} width={100} />
               <Tooltip formatter={(_, __, p) => brl((p.payload as { v: number }).v)} />
@@ -177,6 +179,7 @@ export function AnalisePVM({ model }: { model: DreModel }) {
           </table>
         </div>
       </section>
+      <AnaliseMargem model={model} base={base} atual={atual} empresaId={empresaId} mk={mk} />
     </>
   );
 }
