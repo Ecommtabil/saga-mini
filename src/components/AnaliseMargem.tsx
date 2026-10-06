@@ -10,6 +10,10 @@ export function AnaliseMargem({ model, base, atual, empresaId, mk }: {
   const titulo = r.liquida ? "Lucro líquido" : "Margem de contribuição";
   const delta = r.lucro0 !== null && r.lucro1 !== null ? r.lucro1 - r.lucro0 : null;
   const pp = r.margem0 !== null && r.margem1 !== null ? r.margem1 - r.margem0 : null;
+  const efeitosAtivos = r.efeitos.filter(([, v]) => Math.abs(v) > 0.000001);
+  const maior = efeitosAtivos.length
+    ? efeitosAtivos.reduce((m, e) => (Math.abs(e[1]) > Math.abs(m[1]) ? e : m))
+    : null;
   const saldo = (v: number | null) => <span className={v === null ? "na" : v >= 0 ? "ah-pos" : "ah-neg"}>{brl(v)}</span>;
   return <section className="panel bleed">
     <h2>O que explica a margem de lucro?</h2>
