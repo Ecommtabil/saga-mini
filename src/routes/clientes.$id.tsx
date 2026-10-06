@@ -10,6 +10,7 @@ import { KpiCards } from "@/components/KpiCards";
 import { DreDetalhado } from "@/components/DreDetalhado";
 import { AnaliseGerencial } from "@/components/AnaliseGerencial";
 import { AnaliseProduto } from "@/components/AnaliseProduto";
+import { AnalisePVM } from "@/components/AnalisePVM";
 import { Simuladores } from "@/components/Simuladores";
 import { ImportModal } from "@/components/ImportModal";
 import { ParametrosModal } from "@/components/ParametrosModal";
@@ -34,7 +35,7 @@ export const Route = createFileRoute("/clientes/$id")({
   component: ClientePage,
 });
 
-type Aba = "dre" | "detalhado" | "gerencial" | "produto" | "simulador";
+type Aba = "dre" | "detalhado" | "gerencial" | "produto" | "pvm" | "simulador";
 
 function ClientePage() {
   const { id } = Route.useParams();
@@ -85,6 +86,7 @@ function ClientePage() {
     ...(multiEmpresa ? ([["detalhado", "DRE Detalhado"]] as [Aba, string][]) : []),
     ["gerencial", "Análise Gerencial"],
     ["produto", "Análise por Produto"],
+    ["pvm", "Preço, Volume e Mix"],
     ["simulador", "Simulador de Cenários"],
   ];
 
@@ -179,6 +181,7 @@ function ClientePage() {
 
             {aba === "gerencial" && <AnaliseGerencial model={model} />}
             {aba === "produto" && <AnaliseProduto model={model} periodo={periodo} />}
+            {aba === "pvm" && <AnalisePVM model={model} />}
             {aba === "simulador" && <Simuladores model={model} />}
           </>
         )}
