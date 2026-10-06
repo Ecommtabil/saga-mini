@@ -137,9 +137,11 @@ function ClientePage() {
           </section>
         ) : (
           <>
-            {(aba === "produto" || aba === "detalhado") && (
+            {(aba === "produto" || aba === "detalhado" || aba === "dre") && (
               <div className="toolbar no-print">
-                <span className="toolbar-label">Período:</span>
+                <span className="toolbar-label">
+                  {aba === "dre" ? "KPIs do mês:" : "Período:"}
+                </span>
                 {model.periodos().map((p) => (
                   <button
                     key={p}
@@ -154,7 +156,7 @@ function ClientePage() {
 
             {aba === "dre" && (
               <>
-                <KpiCards model={model} periodo={TOTAL} />
+                <KpiCards model={model} periodo={periodo} />
             <section className="panel bleed">
                   <h2>DRE Gerencial {multiEmpresa ? "— consolidado por empresa" : ""}</h2>
                   <DreWideTable
