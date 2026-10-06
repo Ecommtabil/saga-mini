@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Profit comparisons reuse DreModel metrics in a dedicated helper and share PVM filters; marketplace views stop at after-tax contribution because fixed expenses are not channel-attributed.
