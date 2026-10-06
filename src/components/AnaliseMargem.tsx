@@ -50,6 +50,7 @@ export function AnaliseMargem({ model, base, atual, empresaId, mk }: {
         </tbody>
       </table>
     </div>
+    {maior && <p className="table-note destaque-note"><strong>Item mais relevante:</strong> {maior[0]}, com impacto de {brl(Math.abs(maior[1]))} {maior[1] >= 0 ? "a favor do resultado" : "contra o resultado"} entre {mesLabel(base)} e {mesLabel(atual)} — foi o que mais moveu a margem no período.</p>}
     <p className="table-note">Preço, volume e mix explicam a mudança do faturamento acima. Para chegar ao lucro, também entram as mudanças nos custos, no Simples e nas despesas. Aumento de despesa reduz o resultado; redução de despesa aumenta o resultado. A margem percentual é o resultado dividido pelo faturamento × 100: vender mais não garante uma margem maior.</p>
     <p className="table-note">{r.liquida ? "Lucro líquido = Faturamento − Simples − Custo dos produtos − Despesas variáveis − Despesas fixas. Na seleção de empresa, entram apenas as despesas fixas vinculadas à própria loja; no consolidado, entram também as do grupo." : "Por marketplace, a análise mostra a contribuição após o Simples, sem despesas fixas: elas não são atribuídas por canal e não são rateadas aqui."} O Simples usa a alíquota parametrizada de cada empresa em cada mês.</p>
     {r.semCusto > 0 && <p className="table-note ah-neg">Atenção: {num(r.semCusto)} linhas de vendas sem custo cadastrado nos meses selecionados. Seus custos estão ausentes do cálculo; lucro e margem podem estar superestimados.</p>}
