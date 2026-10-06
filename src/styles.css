@@ -317,7 +317,9 @@ table.prod-table tfoot td.num{text-align:right; font-variant-numeric:tabular-num
 .modal-actions{display:flex; justify-content:flex-end; gap:10px; margin-top:8px;}
 .modal-actions button, .btn{padding:8px 16px; border-radius:8px; border:1px solid var(--line); background:var(--blue-pale); color:var(--blue-dark); font-weight:600; cursor:pointer; font-size:13px;}
 .modal-actions button.primary, .btn.primary{background:var(--blue-med); color:#fff; border-color:var(--blue-med);}
-.btn.danger{background:#fbdede; color:var(--red); border-color:#f2c6c6;}
+.btn.danger{background:#fbdede; color:var(--red); border-color:#f2c6c6; font-weight:700;}
+.btn.danger:hover:not(:disabled){background:var(--red); color:#fff; border-color:var(--red);}
+.client-delete-btn{letter-spacing:.02em;}
 .modal-sep{border:none; border-top:1px solid var(--line); margin:18px 0 14px;}
 .despfix-row{display:grid; grid-template-columns:1fr 140px 32px; gap:8px; align-items:center; margin-bottom:8px;}
 .despfix-remove{background:#fbdede; color:var(--red); border:none; border-radius:6px; height:34px; cursor:pointer; font-weight:700;}
