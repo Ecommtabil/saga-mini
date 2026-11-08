@@ -103,6 +103,8 @@ export async function fetchDataset(clienteId: string): Promise<Dataset> {
     }),
     fixas: ((fix.data ?? []) as DespesaFixa[]).map((f) => ({
       ...f,
+      // Unifica nomes: ignora maiúsculas/minúsculas, acentos e espaços extras.
+      nome: normalizarNomeDespesa(f.nome),
       valor: Number(f.valor),
     })),
     parametros: ((par.data ?? []) as ParametroMensal[]).map((p) => ({
@@ -248,10 +250,19 @@ export async function salvarDespesasFixas(
       cliente_id: clienteId,
       mes,
       empresa_id: empresaId,
-      nome: i.nome.trim(),
+      nome: normalizarNomeDespesa(i.nome),
       valor: i.valor,
     }));
   if (!rows.length) return;
   const { error: e2 } = await supabase.from("despesas_fixas").insert(rows);
   if (e2) throw e2;
+}
+
+export function normalizarNomeDespesa(n: string) {
+  return (n ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toUpperCase();
 }
