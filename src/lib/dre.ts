@@ -396,13 +396,20 @@ export function buildDre(model: DreModel, opts: BuildOpts): DreLine[] {
     const fixasEscopo = model.data.fixas.filter(
       (f) => !filter.empresaId || f.empresa_id === filter.empresaId,
     );
-    const nomes = Array.from(new Set(fixasEscopo.map((f) => f.nome)));
-    for (const nome of nomes) {
+    // Agrupa nomes iguais ignorando maiúsculas, acentos e espaços extras.
+    const chave = (n: string) =>
+      n.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim().toUpperCase();
+    const rotulos = new Map<string, string>();
+    for (const f of fixasEscopo) {
+      const k = chave(f.nome);
+      if (!rotulos.has(k)) rotulos.set(k, k);
+    }
+    for (const [nomeKey, nome] of rotulos) {
       const values: Record<string, number | null> = {};
       for (const p of periodos) {
         const meses = p === TOTAL ? model.meses : [p];
         values[p] = fixasEscopo
-          .filter((f) => f.nome === nome && meses.includes(f.mes))
+          .filter((f) => chave(f.nome) === nomeKey && meses.includes(f.mes))
           .reduce((a, f) => a + Number(f.valor), 0);
       }
       // Despesa excluída/zerada em todos os períodos não aparece na DRE.
