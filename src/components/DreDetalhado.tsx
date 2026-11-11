@@ -5,10 +5,10 @@ import { KpiCards, KPI_PONTO_EQUILIBRIO, type KpiDef } from "./KpiCards";
 import { brl, mesLabel, num, pct } from "@/lib/format";
 
 const KPIS_EMPRESA: KpiDef[] = [
-  { label: "Faturamento", pick: (m) => m.faturamento },
-  { label: "Receita Líquida (sem imposto)", pick: (m) => m.receitaLiquida },
+  { label: "Faturamento", ajuda: "Receita bruta das vendas por produto no período (vendas canceladas não entram).", pick: (m) => m.faturamento },
+  { label: "Receita Líquida (sem imposto)", ajuda: "Faturamento menos deduções (impostos sobre a venda, como o Simples Nacional, e cancelamentos).", pick: (m) => m.receitaLiquida },
   {
-    label: "Lucro Bruto",
+    label: "Lucro Bruto", ajuda: "Receita Líquida menos o custo dos produtos vendidos. Margem bruta = Lucro Bruto ÷ Faturamento.",
     pick: (m) => m.lucroBruto,
     sub: (m) => ({
       texto: `Margem bruta ${pct(m.margemBrutaPct)}`,
@@ -16,7 +16,7 @@ const KPIS_EMPRESA: KpiDef[] = [
     }),
   },
   {
-    label: "Margem de Contribuição",
+    label: "Margem de Contribuição", ajuda: "Lucro Bruto menos despesas variáveis (tarifas, fretes, cupons e comissões), antes das despesas fixas.",
     pick: (m) => m.margemContribuicao,
     sub: (m) => ({
       texto: `${pct(m.margemContribuicaoPct)} do faturamento`,
@@ -24,7 +24,7 @@ const KPIS_EMPRESA: KpiDef[] = [
     }),
   },
   {
-    label: "Lucro Líquido da Loja",
+    label: "Lucro Líquido da Loja", ajuda: "Margem de Contribuição da loja menos as despesas fixas cadastradas para ela, com o Simples pela alíquota da loja.",
     pick: (m) => m.lucroLiquido,
     atribuivel: true,
     sub: (m) => ({

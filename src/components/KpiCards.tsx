@@ -2,6 +2,7 @@ import { Line, LineChart, ResponsiveContainer } from "recharts";
 import { TOTAL, type DreModel, type Metrics } from "@/lib/dre";
 import { brl, mesLabel, num, pct } from "@/lib/format";
 import type { Filter } from "@/lib/dre";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export type KpiDef = {
   label: string;
@@ -10,10 +11,12 @@ export type KpiDef = {
   sub?: (m: Metrics) => { texto: string; positivo: boolean | null } | null;
   /** Força o modo de atribuição das métricas deste KPI (ex.: ponto de equilíbrio precisa das fixas). */
   atribuivel?: boolean;
+  /** Explicação da conta exibida no tooltip. */
+  ajuda?: string;
 };
 
 export const KPI_PONTO_EQUILIBRIO: KpiDef = {
-  label: "Ponto de Equilíbrio",
+  label: "Ponto de Equilíbrio", ajuda: "Faturamento mínimo para cobrir as despesas fixas: Despesas Fixas ÷ (Margem de Contribuição % ÷ 100).",
   pick: (m) => m.pontoEquilibrio,
   format: (v) => brl(v),
   atribuivel: true,
@@ -29,7 +32,7 @@ export const KPI_PONTO_EQUILIBRIO: KpiDef = {
 };
 
 export const KPI_PONTO_EQUILIBRIO_UNIDADES: KpiDef = {
-  label: "Ponto de Equilíbrio (vendas)",
+  label: "Ponto de Equilíbrio (vendas)", ajuda: "Quantidade de vendas necessária para cobrir as despesas fixas: Despesas Fixas ÷ margem de contribuição média por venda.",
   pick: (m) => m.pontoEquilibrioUnidades,
   format: (v) => (v === null || v === undefined ? "N/D" : `${num(v, 0)} vendas`),
   atribuivel: true,
@@ -46,7 +49,7 @@ export const KPI_PONTO_EQUILIBRIO_UNIDADES: KpiDef = {
 };
 
 export const KPI_UNIDADES_VENDIDAS: KpiDef = {
-  label: "Unidades Vendidas",
+  label: "Unidades Vendidas", ajuda: "Total de unidades vendidas no período, sem contar vendas canceladas. Ticket médio = Faturamento ÷ Unidades.",
   pick: (m) => m.unidades,
   format: (v) => num(v, 0),
   sub: (m) => ({
@@ -57,10 +60,10 @@ export const KPI_UNIDADES_VENDIDAS: KpiDef = {
 
 export const KPI_PADRAO: KpiDef[] = [
   KPI_UNIDADES_VENDIDAS,
-  { label: "Faturamento", pick: (m) => m.faturamento },
-  { label: "Receita Líquida", pick: (m) => m.receitaLiquida },
+  { label: "Faturamento", ajuda: "Receita bruta das vendas por produto no período (vendas canceladas não entram).", pick: (m) => m.faturamento },
+  { label: "Receita Líquida", ajuda: "Faturamento menos deduções (impostos sobre a venda, como o Simples Nacional, e cancelamentos).", pick: (m) => m.receitaLiquida },
   {
-    label: "Lucro Bruto",
+    label: "Lucro Bruto", ajuda: "Receita Líquida menos o custo dos produtos vendidos. Margem bruta = Lucro Bruto ÷ Faturamento.",
     pick: (m) => m.lucroBruto,
     sub: (m) => ({
       texto: `Margem bruta ${pct(m.margemBrutaPct)}`,
@@ -68,7 +71,7 @@ export const KPI_PADRAO: KpiDef[] = [
     }),
   },
   {
-    label: "Lucro Líquido",
+    label: "Lucro Líquido", ajuda: "Resultado final: Margem de Contribuição menos despesas fixas. Margem líquida = Lucro Líquido ÷ Faturamento.",
     pick: (m) => m.lucroLiquido,
     sub: (m) => ({
       texto: `Margem líquida ${pct(m.margemLiquidaPct)}`,
@@ -76,7 +79,7 @@ export const KPI_PADRAO: KpiDef[] = [
     }),
   },
   {
-    label: "Custos + Despesas",
+    label: "Custos + Despesas", ajuda: "Soma de custo dos produtos, impostos, despesas variáveis e despesas fixas do período.",
     pick: (m) => m.custosEDespesas,
     sub: (m) => ({
       texto: `${pct(m.faturamento ? (m.custosEDespesas / m.faturamento) * 100 : null)} do faturamento`,
@@ -124,7 +127,19 @@ export function KpiCards({
         }));
         return (
           <div className="kpi-card" key={k.label}>
-            <div className="label">{k.label}</div>
+            <div className="label">
+              {k.label}
+              {k.ajuda && (
+                <TooltipProvider delayDuration={150}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button type="button" className="kpi-help" aria-label={`Como é calculado: ${k.label}`}>ⓘ</button>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">{k.ajuda}</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+            </div>
             <div className="value">{valorFormatado}</div>
             {sub && (
               <div

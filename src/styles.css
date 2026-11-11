@@ -407,3 +407,14 @@ table.slide-table th.num, table.slide-table td.num{text-align:right;}
 table.slide-table td{padding:9px 12px; border-bottom:1px solid var(--line);}
 .slide-cols{display:grid; grid-template-columns:1fr 1fr; gap:26px;}
 .slide-list{font-size:19px; line-height:1.9; padding-left:24px; color:#e7f0fd;}
+
+.kpi-help {
+  margin-left: 6px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: help;
+  color: var(--accent);
+  font-size: 0.85em;
+  line-height: 1;
+}
