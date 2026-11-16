@@ -352,6 +352,8 @@ export async function exportarApresentacao(
   );
 
   // Lista completa, sem o limite dos rankings do slide de produtos.
+  const curto = (t: string, max: number) =>
+    t.length > max ? t.slice(0, max - 1).trimEnd() + "…" : t;
   const paginasNegativas = negativeProductPages(model, periodo);
   const quantidadeNegativa = paginasNegativas.reduce((total, pagina) => total + pagina.length, 0);
   paginasNegativas.forEach((itens, pagina) => {
@@ -389,16 +391,16 @@ export async function exportarApresentacao(
           x: 0.6, y, w: 8.8, h: 0.95,
           fill: { color: i % 2 === 0 ? "F2F5FA" : BRANCO }, line: { color: "E3E8F0", width: 0.5 },
         });
-        slide.addText(item.nome, {
-          x: 0.75, y: y + 0.08, w: 3.9, h: 0.56, fontSize: 18, fontFace: "Calibri",
-          color: AZUL, margin: 0, fit: "shrink", valign: "middle",
+        slide.addText(curto(item.nome, 80), {
+          x: 0.75, y: y + 0.06, w: 3.9, h: 0.58, fontSize: 13, fontFace: "Calibri",
+          color: AZUL, margin: 0, valign: "middle",
         });
-        slide.addText(`SKU: ${item.sku}${item.custoIncompleto ? " · custo incompleto" : ""}`, {
-          x: 0.75, y: y + 0.65, w: 3.9, h: 0.24, fontSize: 12, color: CINZA, margin: 0, fit: "shrink",
+        slide.addText(curto(`SKU: ${item.sku}${item.custoIncompleto ? " · custo incompleto" : ""}`, 55), {
+          x: 0.75, y: y + 0.66, w: 3.9, h: 0.24, fontSize: 11, color: CINZA, margin: 0,
         });
-        slide.addText(`${item.empresa}\n${item.marketplace}`, {
-          x: 4.95, y: y + 0.08, w: 2.05, h: 0.79, fontSize: 18, fontFace: "Calibri",
-          color: AZUL, margin: 0, fit: "shrink", valign: "middle",
+        slide.addText(`${curto(item.empresa, 20)}\n${curto(item.marketplace, 20)}`, {
+          x: 4.95, y: y + 0.08, w: 2.05, h: 0.79, fontSize: 15, fontFace: "Calibri",
+          color: AZUL, margin: 0, valign: "middle",
         });
         slide.addText(`${brl(item.margem)}\n${pct(item.margemPct)}`, {
           x: 7.25, y: y + 0.08, w: 2, h: 0.79, fontSize: 18, fontFace: "Calibri",
