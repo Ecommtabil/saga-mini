@@ -11,3 +11,4 @@
 
 - Profit comparisons reuse DreModel metrics in a dedicated helper and share PVM filters; marketplace views stop at after-tax contribution because fixed expenses are not channel-attributed.
 - PowerPoint statements use a dedicated presentation helper backed by buildDre and DreModel; each store uses its own revenue for AV and only its attributed fixed expenses, preserving dashboard calculations.
+- PowerPoint negative-product lists group by store/channel/SKU with monthly store tax and no fixed-cost allocation, then paginate the entire monetary-margin ranking so losses are not masked by other scopes.

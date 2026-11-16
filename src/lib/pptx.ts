@@ -1,6 +1,7 @@
 import { DreModel, TOTAL } from "./dre";
 import { brl, num, pct } from "./format";
 import { presentationDres } from "./presentation-dre";
+import { negativeProductPages } from "./presentation-negative-products";
 
 const AZUL = "0D1B3E";
 const AZUL_CLARO = "29ABE2";
@@ -349,6 +350,69 @@ export async function exportarApresentacao(
       border: { type: "solid", color: "E3E8F0", pt: 0.5 },
     },
   );
+
+  // Lista completa, sem o limite dos rankings do slide de produtos.
+  const paginasNegativas = negativeProductPages(model, periodo);
+  const quantidadeNegativa = paginasNegativas.reduce((total, pagina) => total + pagina.length, 0);
+  paginasNegativas.forEach((itens, pagina) => {
+    const slide = pptx.addSlide();
+    slide.addText(`PRODUTOS COM MARGEM NEGATIVA · ${competencia.toUpperCase()}`, {
+      x: 0.6, y: 0.35, w: 8.8, h: 0.3, fontSize: 13, bold: true, color: AZUL_CLARO, margin: 0,
+    });
+    slide.addText("Do maior prejuízo ao menor", {
+      x: 0.6, y: 0.8, w: 8.8, h: 0.55, fontSize: 30, bold: true, color: AZUL, margin: 0,
+    });
+    if (!itens.length) {
+      slide.addShape(pptx.ShapeType.rect, {
+        x: 0.6, y: 1.65, w: 8.8, h: 1.2,
+        fill: { color: "F2F5FA" }, line: { color: "DDE3EE" },
+      });
+      slide.addText("Nenhum produto com margem negativa nesta competência.", {
+        x: 0.85, y: 1.9, w: 8.3, h: 0.65, fontSize: 22, color: AZUL, margin: 0,
+      });
+    } else {
+      slide.addShape(pptx.ShapeType.rect, {
+        x: 0.6, y: 1.55, w: 8.8, h: 0.45,
+        fill: { color: AZUL }, line: { color: AZUL },
+      });
+      [
+        { text: "Produto / SKU", x: 0.75, w: 3.9 },
+        { text: "Loja / Canal", x: 4.95, w: 2.05 },
+        { text: "Margem R$ / %", x: 7.25, w: 2 },
+      ].forEach((cell) => slide.addText(cell.text, {
+        x: cell.x, y: 1.55, w: cell.w, h: 0.45, fontSize: 18, bold: true,
+        color: BRANCO, margin: 0, valign: "middle", align: cell.x > 7 ? "right" : "left",
+      }));
+      itens.forEach((item, i) => {
+        const y = 2 + i * 0.95;
+        slide.addShape(pptx.ShapeType.rect, {
+          x: 0.6, y, w: 8.8, h: 0.95,
+          fill: { color: i % 2 === 0 ? "F2F5FA" : BRANCO }, line: { color: "E3E8F0", width: 0.5 },
+        });
+        slide.addText(item.nome, {
+          x: 0.75, y: y + 0.08, w: 3.9, h: 0.56, fontSize: 18, fontFace: "Calibri",
+          color: AZUL, margin: 0, fit: "shrink", valign: "middle",
+        });
+        slide.addText(`SKU: ${item.sku}${item.custoIncompleto ? " · custo incompleto" : ""}`, {
+          x: 0.75, y: y + 0.65, w: 3.9, h: 0.24, fontSize: 12, color: CINZA, margin: 0, fit: "shrink",
+        });
+        slide.addText(`${item.empresa}\n${item.marketplace}`, {
+          x: 4.95, y: y + 0.08, w: 2.05, h: 0.79, fontSize: 18, fontFace: "Calibri",
+          color: AZUL, margin: 0, fit: "shrink", valign: "middle",
+        });
+        slide.addText(`${brl(item.margem)}\n${pct(item.margemPct)}`, {
+          x: 7.25, y: y + 0.08, w: 2, h: 0.79, fontSize: 18, fontFace: "Calibri",
+          bold: true, color: "B3261E", margin: 0, align: "right", valign: "middle",
+        });
+      });
+    }
+    slide.addText(`Margem = receita − custo − despesas variáveis − Simples da loja. Sem despesas fixas.`, {
+      x: 0.6, y: 4.94, w: 8.8, h: 0.2, fontSize: 11, color: CINZA, margin: 0,
+    });
+    slide.addText(`${quantidadeNegativa} itens · Página ${pagina + 1} de ${paginasNegativas.length} · Ordem crescente de margem em R$`, {
+      x: 0.6, y: 5.22, w: 8.8, h: 0.1, fontSize: 10, color: CINZA, margin: 0,
+    });
+  });
 
   // Preserva os slides de canais e produtos; lojas entram antes do plano de ação.
   demonstrativos.slice(1).forEach(adicionarDre);
