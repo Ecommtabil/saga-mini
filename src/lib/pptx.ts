@@ -1,5 +1,6 @@
-import { DreModel, TOTAL, buildDre } from "./dre";
+import { DreModel, TOTAL } from "./dre";
 import { brl, num, pct } from "./format";
+import { presentationDres } from "./presentation-dre";
 
 const AZUL = "0D1B3E";
 const AZUL_CLARO = "29ABE2";
@@ -132,38 +133,51 @@ export async function exportarApresentacao(
     { x: 0.6, y: 3.8, w: 8.8, h: 0.5, fontSize: 12, color: CINZA },
   );
 
-  // ---------- DRE resumida ----------
-  const s3 = pptx.addSlide();
-  titulo(s3, "Da venda ao lucro", "DRE Gerencial resumida");
-  const dre = buildDre(model, { detalhe: "nenhum", completo: true }).filter(
-    (l) => l.kind === "synth",
-  );
-  const dreRows = [
-    [
-      { text: "Linha", options: { bold: true, color: BRANCO, fill: { color: AZUL } } },
-      { text: "Valor", options: { bold: true, color: BRANCO, fill: { color: AZUL }, align: "right" as const } },
-      { text: "AV %", options: { bold: true, color: BRANCO, fill: { color: AZUL }, align: "right" as const } },
-    ],
-    ...dre.map((l) => {
-      const v = l.values[periodo];
-      return [
-        { text: l.label },
-        { text: v === null || v === undefined ? "N/D" : brl(v), options: { align: "right" as const } },
-        {
-          text: m.faturamento ? pct(((v ?? 0) / m.faturamento) * 100) : "—",
-          options: { align: "right" as const },
-        },
-      ];
-    }),
-  ];
-  s3.addTable(dreRows, {
-    x: 0.6,
-    y: 1.35,
-    w: 8.8,
-    fontSize: 10,
-    border: { type: "solid", color: "E3E8F0", pt: 0.5 },
-    colW: [4.8, 2, 2],
-  });
+  // ---------- DRE sintético: um slide para cada escopo ----------
+  const demonstrativos = presentationDres(model, periodo);
+  const adicionarDre = (dre: (typeof demonstrativos)[number]) => {
+    const slide = pptx.addSlide();
+    slide.addText(`DRE SINTÉTICO · ${competencia.toUpperCase()}`, {
+      x: 0.6, y: 0.35, w: 8.8, h: 0.3, fontSize: 14, bold: true, color: AZUL_CLARO, margin: 0,
+    });
+    slide.addText(dre.empresaId ? `DRE — ${dre.nome}` : "DRE — Consolidado", {
+      x: 0.6, y: 0.75, w: 8.8, h: 0.65, fontSize: 30, bold: true, color: AZUL, margin: 0, fit: "shrink",
+    });
+    const rows = [
+      { key: "HEADER", label: "Conta", valor: "Realizado", av: "AV %" },
+      ...dre.lines.map((line) => ({ ...line, valor: brl(line.valor), av: pct(line.av) })),
+    ];
+    rows.forEach((row, i) => {
+      const header = i === 0;
+      const resultado = row.key === "LUCRO_LIQUIDO";
+      const destaque = row.key === "MARGEM_CONTRIBUICAO";
+      const y = 1.5 + i * 0.32;
+      slide.addShape(pptx.ShapeType.rect, {
+        x: 0.6, y, w: 8.8, h: 0.32,
+        fill: { color: header || resultado ? AZUL : destaque ? "E5F3FA" : i % 2 === 0 ? "F2F5FA" : BRANCO },
+        line: { color: "E3E8F0", width: 0.4 },
+      });
+      [
+        { text: row.label, x: 0.7, w: 4.7, align: "left" as const },
+        { text: row.valor, x: 5.5, w: 2.45, align: "right" as const },
+        { text: row.av, x: 8.05, w: 1.25, align: "right" as const },
+      ].forEach((cell) => slide.addText(cell.text, {
+        x: cell.x, y, w: cell.w, h: 0.32, align: cell.align,
+        fontFace: "Calibri", fontSize: 18, margin: 0, valign: "middle",
+        bold: header || resultado || destaque, color: header || resultado ? BRANCO : AZUL,
+      }));
+    });
+    slide.addText(`Ponto de equilíbrio: ${brl(dre.metrics.pontoEquilibrio)}`, {
+      x: 0.6, y: 4.78, w: 8.8, h: 0.3, fontSize: 16, color: AZUL, bold: true, margin: 0,
+    });
+    slide.addText(dre.empresaId
+      ? "Simples pela alíquota da loja; despesas fixas apenas desta loja. AV sobre o faturamento da loja."
+      : "Inclui todas as lojas e as despesas fixas do grupo. AV sobre o faturamento consolidado.", {
+      x: 0.6, y: 5.15, w: 8.8, h: 0.3, fontSize: 11, color: CINZA, margin: 0,
+    });
+  };
+  const consolidado = demonstrativos[0];
+  if (consolidado) adicionarDre(consolidado);
 
   // ---------- Marketplaces ----------
   const s4 = pptx.addSlide();
@@ -335,6 +349,9 @@ export async function exportarApresentacao(
       border: { type: "solid", color: "E3E8F0", pt: 0.5 },
     },
   );
+
+  // Preserva os slides de canais e produtos; lojas entram antes do plano de ação.
+  demonstrativos.slice(1).forEach(adicionarDre);
 
   // ---------- Plano de ação ----------
   const s6 = pptx.addSlide();
